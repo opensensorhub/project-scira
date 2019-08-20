@@ -1,0 +1,33 @@
+rootProject.name = 'osh-node-scira'
+def includeDir = "$rootDir/include"
+
+// osh-core
+gradle.ext.oshCoreDir = "$includeDir/osh-core"
+includeBuild gradle.oshCoreDir
+
+// osh-persistence
+include 'sensorhub-storage-h2'
+project(':sensorhub-storage-h2').projectDir = "$includeDir/osh-addons/persistence/sensorhub-storage-h2" as File
+
+// osh-sensors
+include 'sensorhub-driver-fakeweather'
+project(':sensorhub-driver-fakeweather').projectDir = "$includeDir/osh-addons/sensors/simulated/sensorhub-driver-fakeweather" as File
+
+// osh-hydro
+include 'sensorhub-driver-usgswater'
+project(':sensorhub-driver-usgswater').projectDir = "$includeDir/osh-addons/sensors/hydro/sensorhub-driver-usgswater" as File
+include 'sensorhub-storage-usgswater'
+project(':sensorhub-storage-usgswater').projectDir = "$includeDir/osh-addons/sensors/hydro/sensorhub-storage-usgswater" as File
+include 'sensorhub-storage-ndbc'
+project(':sensorhub-storage-ndbc').projectDir = "$includeDir/osh-addons/sensors/hydro/sensorhub-storage-ndbc" as File
+
+// include all folders with build.gradle as subprojects
+FileTree subprojects = fileTree(rootDir).include('*/build.gradle')
+subprojects.files.each { File f ->
+  File projectFolder = f.parentFile
+  if (projectFolder != rootDir) {
+    String projectName = projectFolder.name
+    include projectName
+    project(':' + projectName).projectDir = projectFolder
+  }
+}
