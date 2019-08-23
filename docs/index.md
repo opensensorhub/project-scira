@@ -9,8 +9,6 @@ During this pilot, we will deploy OSH hubs on Android phones (SmartHubs), field 
 
 Initially, we have added US stream gage data to the SCIRA OSH Cloud and will continue to add additional sensor systems and processing.
 
-The UserName = “user” and password = “user@SCIRA”.
-
 ## Sample requests
 ### Stream gage height
 A sample of the stream gage height measurements can be accessed as JSON using the **GetResult** request:
