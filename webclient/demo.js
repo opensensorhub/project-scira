@@ -141,8 +141,8 @@ function init() {
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     // console.debug(sseHandler);
 
-    let offerings = Utilities.getHubOfferings();
-    console.log(offerings);
+    // let offerings = Utilities.getHubOfferings();
+    // console.log(offerings);
 
     // Automation.getTrafficCamFOIs(cesiumView);
     // MarkerLayers.trafficCamHide();
@@ -1115,7 +1115,8 @@ function keyByValue(object, value) {
 let Sensors = {
     createJSONReceiver: function (recName, offeringID, observedProp, options) {
         let dataRecProps = {
-            protocol: 'wss',
+            // protocol: 'wss',
+            protocol: 'ws',
             service: SOS,
             endpointUrl: SCIRA_SOS_ENDPT,
             offeringID: offeringID,
@@ -1777,7 +1778,7 @@ let Automation = {
     // TODO: this needs to be async or parallel, possibly break into workers depending on size of foi list
     getStreamGageFOIs: function (cesiumView) {
         let req = new XMLHttpRequest();
-        let url = 'https://' + SOS_ENDPOINT + '?service=SOS&version=2.0&request=GetFeatureOfInterest' +
+        let url = 'http://' + SCIRA_SOS_ENDPT + '?service=SOS&version=2.0&request=GetFeatureOfInterest' +
             '&procedure=urn:usgs:water:network';
         req.open('GET', url, false);
         req.withCredentials = true;
@@ -1785,20 +1786,15 @@ let Automation = {
             let parser = new OSH.SWEXmlParser(req.responseText);
             // console.log(parser.toJson());
             let fois = parser.toJson()['GetFeatureOfInterestResponse'].featureMember;
-            let streamGages = [];
 
             for (let i = 0; i < fois.length; i++) {
-                // for (let i = 0; i < 5; i++) {
-                // console.log(i);
                 let foi = fois[i];
                 let tableHTML = csInfoTableFromFOI(foi);
                 let staticLocation = {};
                 let locSplit = foi.shape.pos.split(' ');
                 staticLocation.lat = parseFloat(locSplit[0]);
                 staticLocation.lon = parseFloat(locSplit[1]);
-                /*locSplit.length > 2 ? staticLocation.alt = parseFloat(locSplit[2]) :*/
                 staticLocation.alt = 0.0;
-                // console.log(staticLocation);
                 let entity = addUSGSStreamGageSensor(foi.id, foi.name, 'urn:nys:usgs', cesiumView, {
                     foi: foi.identifier.value, location: staticLocation, description: tableHTML
                 });
