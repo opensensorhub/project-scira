@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+
+    <!-- VENDOR -->
+    <!--<link rel="stylesheet" href="../vendor/vendor.min.css" />-->
+    <link rel="stylesheet" href="vendor/vendor.min.css"/>
+    <!--<script type="text/javascript" src="../vendor/vendor.min.js"></script>-->
+    <script type="text/javascript" src="vendor/vendor-debug.js"></script>
+
+
+    <!-- OSH Toolkit -->
+    <link rel="stylesheet" type="text/css" href="css/osh.min.css"/>
+    <!--<link rel="stylesheet" type="text/css" href="css/osh-debug-circ.css"/>-->
+    <script type="text/javascript" src="js/osh-debug.js"></script>
+    <!--<script type="text/javascript" src="js/osh-debug-custom.js"></script>-->
+    <script type="text/javascript" src="js/osh-SWEXmlParser.js"></script>
+    <!--<script type="text/javascript" src="js/osh.min.js"></script>-->
+
+    <!-- Demo Config File-->
+    <script src="demo.js"></script>
+    <link rel="stylesheet" type="text/css" href="demo-style.css">
+
+    <!-- Circular Nav Menu -->
+    <link rel="stylesheet" href="css/circularNavMenu/font-awesome.min.css"/>
+    <!--link rel="stylesheet" href="css/circularNavMenu/common.min.css" /-->
+    <link rel="stylesheet" href="css/circularNavMenu/circle-menu.css"/>
+    <script src="js/circleMenu.min.js"></script>
+
+    <!--    Tabulator (Table)-->
+<!--    <link href="https://unpkg.com/tabulator-tables@4.2.3/dist/css/tabulator.min.css" rel="stylesheet">-->
+<!--    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.2.3/dist/js/tabulator.min.js"></script>-->
+
+    <link href="https://unpkg.com/tabulator-tables@4.3.0/dist/css/tabulator.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.3.0/dist/js/tabulator.min.js"></script>
+
+    <title>Project SCIRA</title>
+
+</head>
+
+<body onload="init()" id="client-body">
+<div id="grid-main">
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="http://www.opensensorhub.org/">
+                    <img id="osh-logo" src="images/opensensorhub-logo2.png"
+                         style="-webkit-animation-play-state: paused; -webkit-transition: none; transition: none;"></a>
+            </div>
+        </div>
+    </nav>
+<!--    <h1 id="preload-txt">Loading...</h1>-->
+    <div id="main-container" class="osh-container"></div>
+    <div id="entity-disp" class="tree-div"></div>
+    <div id="dialog-container"></div>
+    <div id="sw-chart"></div>
+    <div id="buoy-chart"></div>
+    <div id="usgs-chart"></div>
+    <div id="avl-chart"></div>
+    <div id="traffic-cams"></div>
+    <div id="android-video"></div>
+    <div id="drone-video"></div>
+
+    <button id="zoom-toggle-btn" class="btn-inactive" title="Toggle zoom to selected marker" onclick="ZoomSelectionToggle()">Zoom To Selected</button>
+
+<!--    <div id="test-table-avl" >-->
+<!--        <h3>AVL Table</h3>-->
+<!--        <div id="avl-table" class="table-content"></div>-->
+<!--    </div>-->
+
+
+<!--    <nav class="c-circle-menu js-menu">-->
+<!--        <button class="c-circle-menu__toggle js-menu-toggle">-->
+<!--            <span>Toggle</span>-->
+<!--        </button>-->
+<!--        <ul class="c-circle-menu__items">-->
+<!--            <li class="c-circle-menu__item">-->
+<!--                <a href="#" class="c-circle-menu__link" id="screenshot-button">-->
+<!--                    <img src="images/photo.svg" alt="">-->
+<!--                </a>-->
+<!--            </li>-->
+<!--            <li class="c-circle-menu__item">-->
+<!--                <a href="#" class="c-circle-menu__link" id="2D-view-button">-->
+<!--                    <img src="images/2d.svg" alt="">-->
+<!--                </a>-->
+<!--            </li>-->
+<!--            <li class="c-circle-menu__item">-->
+<!--                <a href="#" class="c-circle-menu__link" id="3D-view-button">-->
+<!--                    <img src="images/3d.svg" alt="">-->
+<!--                </a>-->
+<!--            </li>-->
+<!--            <li class="c-circle-menu__item">-->
+<!--                <a href="#" class="c-circle-menu__link" id="add-entity-button">-->
+<!--                    <img src="images/add.svg" alt="">-->
+<!--                </a>-->
+<!--            </li>-->
+<!--            &lt;!&ndash; more items here &ndash;&gt;-->
+<!--        </ul>-->
+<!--        <div class="c-circle-menu__mask js-menu-mask"></div>-->
+<!--    </nav>-->
+</div>
+</body>
+
+</html>

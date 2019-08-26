@@ -1,0 +1,384 @@
+html {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+    max-height: 100%;
+    /*background: rgba(106, 109, 111, 0.85);*/
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: hidden;
+    /*margin: 1px;*/
+    /*padding-left: 8px;*/
+    /*padding-top: 4px;*/
+    /*padding-bottom: 4px;*/
+}
+
+.navbar {
+    margin: 0;
+    height: 6vh;
+}
+
+.container-fluid {
+    max-height: 6vh;
+}
+
+#grid-main {
+    margin: 0;
+    display: block;
+    /*grid-template-columns: repeat(11, 1fr);*/
+    /*grid-template-rows: 65px repeat(10, 1fr);*/
+    /*grid-row-gap: 2px;*/
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    /*max-height: 99.9%;*/
+}
+
+/*#client-body {*/
+/*    width: 99%;*/
+/*    height: 99%;*/
+/*}*/
+
+.osh-container {
+    width: 100%;
+   /* height: 94vh;*/
+    max-width: 100%;
+    max-height: 100%;
+    /*overflow: hidden;*/
+    /*grid-column: 1/12;*/
+    /*grid-row: 2/12;*/
+    /*display: grid;*/
+    /*grid-template-columns: repeat(10, 10%);*/
+    /*grid-template-rows: repeat(10, 10%);*/
+    z-index: 10;
+}
+
+.tree-div {
+    position: absolute;
+
+    display: block;
+    top: 7vh;
+    left: 1vw;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.entity-tree-1 {
+    /*overflow: auto;*/
+    width: 20%;
+    min-width: 200px;
+    max-height: 50vh;
+    pointer-events: auto;
+}
+
+.pop-over {
+    background-color: #f4f4f4;
+    border-radius: 4px;
+    box-shadow: none;
+    position: absolute;
+
+}
+
+.pop-over h3{
+    color: #000000;
+    font-size: 18px;
+}
+
+.pop-inner {
+    background-color: #FFFFFF;
+    padding: 5px;
+    /*height: 100%;*/
+}
+
+.video-dialog-43 {
+    width: 354px;
+    left: -20px;
+}
+
+#sw-chart {
+    position: absolute;
+    /*left: 75%;*/
+    top: 0%;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+#buoy-chart {
+    position: absolute;
+    /*left: 75%;*/
+    top: 0%;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+#usgs-chart {
+    position: absolute;
+    /*left: 75%;*/
+    top: 0%;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.map-view-style {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    /*height: auto;*/
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: hidden;
+    display: block;
+}
+
+.navbar-brand {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    padding: 0;
+    height: auto;
+    width: 200px;
+}
+
+#osh-logo {
+    height: 45px;
+}
+
+a {
+    color: black;
+}
+
+.container-fluid {
+    margin: auto;
+}
+
+.data-table {
+    position: absolute;
+    top: 10%;
+    left: 75%;
+    background: rgba(5, 107, 166, 0.6);
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: #bbb;
+    border-style: solid;
+    box-shadow: 0 0 7px 0 black;
+    z-index: 9999;
+    color: black !important;
+    padding: 5px;
+}
+
+.close-btn {
+    color: lightgrey;
+    font-weight: bolder;
+    width: 10%;
+    cursor: default;
+}
+
+.close-btn:hover {
+    cursor: default;
+    color: purple;
+}
+
+#avl-chart {
+    position: absolute;
+    /*left: 75%;*/
+    top: 0%;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+#traffic-cams {
+    position: absolute;
+    /*left: 75%;*/
+    top: 0%;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+#android-video {
+    position: absolute;
+    /*left: 75%;*/
+    top: 0%;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.video-dialog {
+    pointer-events: auto;
+    left: 70%;
+    top: 50%;
+    width: 20%;
+}
+
+tree {
+    overflow: hidden;
+}
+
+#test-table {
+    position: absolute;
+    /*left: 60%;*/
+    /*top: 75%;*/
+    /*width: 40%;*/
+    z-index: 9999;
+    border-radius: 3px;
+    max-width: 100%;
+}
+
+#buoy-table {
+    position: absolute;
+    /*left: 60%;*/
+    /*top: 50%;*/
+    /*width: 40%;*/
+    z-index: 9999;
+    border-radius: 3px;
+    max-width: 100%;
+}
+
+#avl-table {
+    position: absolute;
+    /*left: 60%;*/
+    /*top: 0;*/
+    /*width: 40%;*/
+    z-index: 9999;
+    border-radius: 3px;
+    max-width: 100%;
+}
+
+#meso-table {
+    position: absolute;
+    /*left: 50%;*/
+    /*top: 25%;*/
+    /*width: 50%;*/
+    z-index: 9999;
+    border-radius: 3px;
+    max-width: 100%;
+}
+
+#tables {
+    position: absolute;
+    left: 45%;
+    top: 10%;
+    width: 45%;
+    resize: both;
+    z-index: 99999;
+    /*overflow: auto;*/
+    /*background: #2a6496;*/
+    /*height: 10%;*/
+}
+
+/* Style the tab */
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 2px 2px;
+    border: 1px solid #ccc;
+    border-top: none;
+    width: 100%;
+}
+
+.table-dialog {
+    left: 50%;
+    top: 40%;
+    width: 25%;
+    height: 25%;
+    z-index: 99999;
+}
+
+#drone-video {
+    left: 50%;
+    top: 50%;
+    z-index: 99999;
+}
+
+img[id*="dataview"] {
+    width: 100% !important;
+    height: auto !important;
+}
+
+/*.tabulator-tableHolder{*/
+/*    overflow: scroll !important;*/
+/*}*/
+
+
+.pop-over{
+    min-width: 415px;
+}
+
+#zoom-toggle-btn{
+    position: absolute;
+    bottom: 2%;
+    right: 1%;
+    z-index: 9999;
+    border-radius: 6px;
+}
+
+.btn-active{
+    background: #4cae4c;
+}
+
+.btn-inactive{
+    background: #ccc;
+}
+
+.droneVideo{
+    max-width: 700px;
+}
+
+#preload-txt{
+    font-size: large;
+}
+
+.pop-connect{
+    display: none;
+}
