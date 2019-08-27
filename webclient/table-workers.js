@@ -33,7 +33,7 @@ let observedProperties = {
 };
 
 function makeURL(offering, observable, startTime, endTime) {
-    let url = 'https://nys.georobotix.com/sensorhub/sos?service=SOS&version=2.0&request=GetResult' +
+    let url = 'http://scira.georobotix.io:8181/sensorhub/sos?service=SOS&version=2.0&request=GetResult' +
         '&offering=' + offering +
         '&observedProperty=' + observable;
     // '&temporalFilter=phenomenonTime,2019-01-18T17:00:00Z/2019-01-21T17:00:00Z' +
@@ -151,7 +151,7 @@ function getResultsMesonet() {
 }
 
 function getResultsAVLGPS() {
-    let url = 'https://nys.georobotix.com/sensorhub/sos?service=SOS&version=2.0&request=GetResult' +
+    let url = 'http://scira.georobotix.io:8181/sensorhub/sos?service=SOS&version=2.0&request=GetResult' +
         '&offering=' + offerings.AVL +
         '&observedProperty=' + observedProperties.AVL.GPS +
         '&temporalFilter=phenomenonTime,now&responseFormat=application/json';
@@ -179,7 +179,7 @@ function getResultsAVLGPS() {
 }
 
 function getResultsAVLODB() {
-    let url = 'https://nys.georobotix.com/sensorhub/sos?service=SOS&version=2.0&request=GetResult' +
+    let url = 'http://scira.georobotix.io:8181/sensorhub/sos?service=SOS&version=2.0&request=GetResult' +
         '&offering=' + offerings.AVL +
         '&observedProperty=' + observedProperties.AVL.ODB +
         '&temporalFilter=phenomenonTime,now&responseFormat=application/json';

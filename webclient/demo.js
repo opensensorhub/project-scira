@@ -3143,12 +3143,12 @@ let MarkerLayers = {
             css: 'fa fa-eye',
             clickOverride: MarkerLayers.usgsHide
         };
-        let table = {
+        /*let table = {
             name: 'Show Table',
             viewId: '',
             css: 'fa fa-eye',
             clickOverride: MarkerLayers.usgsTable
-        };
+        };*/
         menuItems = [show, hide, table];
         let stackMenu = new OSH.UI.ContextMenu.StackMenu({
             id: 'menu-' + OSH.Utils.randomUUID(),
