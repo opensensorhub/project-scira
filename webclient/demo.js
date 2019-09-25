@@ -154,8 +154,8 @@ function init() {
     // MarkerLayers.avlHide();
     // Automation.getMesonetFOIs(cesiumView);
     // MarkerLayers.mesonetHide();
-    // Automation.addAndroidDevices();
-    // MarkerLayers.androidHide();
+    Automation.addAndroidDevices();
+    MarkerLayers.androidHide();
 
     // UAV
     // Sensors.addUAV('Solo-1', 'Solo Drone 1', 'urn:osh:sensor:mavlink:solo:S115A58000000-sos',
@@ -1219,7 +1219,7 @@ let Sensors = {
         treeItems.push({
             entity: entity,
             entityId: entity.id,
-            path: 'Body Cams',
+            path: 'Smarthubs',
             treeIcon: './images/light/2x/android2x.png',
             contextMenuId: contextMenus.stack.id
         });
