@@ -1156,7 +1156,7 @@ let Sensors = {
         };
 
         let locData = new OSH.DataReceiver.JSON('Location', {
-            protocol: 'wss',
+            protocol: 'ws',
             service: SOS,
             endpointUrl: SCIRA_SOS_ENDPT,
             offeringID: offeringID,
@@ -1172,7 +1172,7 @@ let Sensors = {
         });
 
         let orientation = new OSH.DataReceiver.OrientationQuaternion('Orientation', {
-            protocol: 'wss',
+            protocol: 'ws',
             service: SOS,
             endpointUrl: SCIRA_SOS_ENDPT,
             offeringID: offeringID,
@@ -1187,7 +1187,7 @@ let Sensors = {
         });
 
         let video = new OSH.DataReceiver.VideoMjpeg("Video", {
-            protocol: 'wss',
+            protocol: 'ws',
             service: SOS,
             endpointUrl: SCIRA_SOS_ENDPT,
             offeringID: offeringID,
