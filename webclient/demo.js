@@ -2602,7 +2602,13 @@ let Context = {
             clickOverride: pointMarkerConnector,
             locationDatasource: dataSources.locData
         };
-        menuItems.push(video, locationIcon);
+        let locationIconHide = {
+            name: 'Hide Map Icon',
+            css: 'fa fa-map-marker',
+            clickOverride: pointMarkerDisconnector,
+            locationDatasource: dataSources.locData
+        };
+        menuItems.push(video, locationIcon, locationIconHide);
         let circContextMenu = new OSH.UI.ContextMenu.CircularMenu({
             id: 'menu-' + OSH.Utils.randomUUID(),
             groupId: '',
@@ -2633,6 +2639,14 @@ let Context = {
                 hdgDataSource.connect();
             }
 
+            // Use Portion of Top Level Show Function Here
+            for (let csEntity of cesiumView.viewer.entities._entities._array) {
+                if (csEntity._dsid === cesiumView.stylerToObj[parentEntity.locStyler.id]) {
+                    csEntity.show = true;
+                    break;
+                }
+            }
+
             // HACK to zoom to vehicle entity
             let prevSelected = cesiumView.viewer.selectedEntity;
             let zoomToSelected = function () {
@@ -2645,6 +2659,22 @@ let Context = {
                 }
             };
             setTimeout(zoomToSelected, 100);
+        }
+
+        function pointMarkerDisconnector(event) {
+            let locDataSource = dataSources.locData;
+            let hdgDataSource = dataSources.orientation;
+            if (locDataSource.connected === true) {
+                locDataSource.disconnect();
+                hdgDataSource.disconnect();
+            }
+
+            for (let csEntity of cesiumView.viewer.entities._entities._array) {
+                if (csEntity._dsid === cesiumView.stylerToObj[parentEntity.locStyler.id]) {
+                    csEntity.show = false;
+                    break;
+                }
+            }
         }
 
         function dialogAndDSController(callerType, dataSource) {
