@@ -1219,7 +1219,7 @@ let Sensors = {
         treeItems.push({
             entity: entity,
             entityId: entity.id,
-            path: 'Smarthubs',
+            path: 'Smart Hubs',
             treeIcon: './images/light/2x/android2x.png',
             contextMenuId: contextMenus.stack.id
         });
