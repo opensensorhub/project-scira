@@ -289,7 +289,7 @@ function init() {
                 let avlMenu = MarkerLayers.avlContext();
                 node.contextMenu = avlMenu.id;
                 break;
-            case 'Android Devices':
+            case 'Smart Hubs':
                 let androidMenu = MarkerLayers.androidContext();
                 node.contextMenu = androidMenu.id;
                 break;
@@ -1233,6 +1233,7 @@ let Sensors = {
             locationFunc: {
                 dataSourceIds: [locData.getId()],
                 handler: function (rec) {
+                    // console.log(rec);
                     return {
                         x: rec.location.lon,
                         y: rec.location.lat,
@@ -2619,10 +2620,12 @@ let Context = {
         };
 
         function connectVideo() {
+            console.debug('Show Video for:', parentEntity);
             dialogAndDSController('video', dataSources.video);
         }
 
         function pointMarkerConnector(event) {
+            console.debug('Show Android sensor:', parentEntity);
             let locDataSource = dataSources.locData;
             let hdgDataSource = dataSources.orientation;
             if (locDataSource.connected === false) {
