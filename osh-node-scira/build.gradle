@@ -25,6 +25,7 @@ dependencies {
   compile project(':sensorhub-driver-fakeweather')
   compile project(':sensorhub-driver-usgswater')
   compile project(':sensorhub-storage-usgswater')
+  compile project(':sensorhub-driver-metar')
 }
 
 configurations {
