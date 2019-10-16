@@ -26,6 +26,7 @@ dependencies {
   compile project(':sensorhub-driver-usgswater')
   compile project(':sensorhub-storage-usgswater')
   compile project(':sensorhub-driver-metar')
+  compile project(':sensorhub-driver-cradlepoint')
 }
 
 configurations {
