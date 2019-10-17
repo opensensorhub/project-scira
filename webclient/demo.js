@@ -14,6 +14,7 @@ let TIMEOUT = 4000;
 let REPLAY_FACTOR = 999999;
 let USEFFMPEGWORKERS = true;
 let DS_PROTOCOL = "ws";
+let WEBSOCKET_PROTOCOL = 'ws';
 let SOS = "SOS";
 let HISTORY_DEPTH_MILLIS = 3 * 24 * 3600 * 1000;
 
@@ -640,7 +641,7 @@ function addTrafficCamSensor(entityId, entityName, offeringID, mapView, options)
     }
 
     var videoData = new OSH.DataReceiver.VideoMjpeg("Video", {
-        protocol: "wss",
+        protocol: WEBSOCKET_PROTOCOL,
         service: "SOS",
         endpointUrl: SCIRA_SOS_ENDPT,
         offeringID: offeringID,
@@ -753,7 +754,7 @@ function addGenericLocationData(entityID, entityName, offeringID, mapView, optio
 
 function addSimWeatherStation(entityID, entityName, offeringID, mapView, options) {
     let weatherData = new OSH.DataReceiver.JSON(entityName + " - Weather", {
-        protocol: "wss",
+        protocol: WEBSOCKET_PROTOCOL,
         service: "SOS",
         endpointUrl: SCIRA_SOS_ENDPT,
         offeringID: offeringID,
@@ -769,7 +770,7 @@ function addSimWeatherStation(entityID, entityName, offeringID, mapView, options
     });
 
     let locationData = new OSH.DataReceiver.LatLonAlt(entityName + ' - Location', {
-        protocol: 'wss',
+        protocol: WEBSOCKET_PROTOCOL,
         service: SOS,
         endpointUrl: SCIRA_SOS_ENDPT,
         offeringID: offeringID,
@@ -1115,8 +1116,8 @@ function keyByValue(object, value) {
 let Sensors = {
     createJSONReceiver: function (recName, offeringID, observedProp, options) {
         let dataRecProps = {
-            // protocol: 'wss',
-            protocol: 'ws',
+            // protocol: WEBSOCKET_PROTOCOL,
+            protocol: WEBSOCKET_PROTOCOL,
             service: SOS,
             endpointUrl: SCIRA_SOS_ENDPT,
             offeringID: offeringID,
@@ -1156,7 +1157,7 @@ let Sensors = {
         };
 
         let locData = new OSH.DataReceiver.JSON('Location', {
-            protocol: 'ws',
+            protocol: WEBSOCKET_PROTOCOL,
             service: SOS,
             endpointUrl: SCIRA_SOS_ENDPT,
             offeringID: offeringID,
@@ -1172,7 +1173,7 @@ let Sensors = {
         });
 
         let orientation = new OSH.DataReceiver.OrientationQuaternion('Orientation', {
-            protocol: 'ws',
+            protocol: WEBSOCKET_PROTOCOL,
             service: SOS,
             endpointUrl: SCIRA_SOS_ENDPT,
             offeringID: offeringID,
@@ -1187,7 +1188,7 @@ let Sensors = {
         });
 
         let video = new OSH.DataReceiver.VideoMjpeg("Video", {
-            protocol: 'ws',
+            protocol: WEBSOCKET_PROTOCOL,
             service: SOS,
             endpointUrl: SCIRA_SOS_ENDPT,
             offeringID: offeringID,
@@ -1266,6 +1267,102 @@ let Sensors = {
         // locStylerToEntities[entity.locStyler.id] = entity;
         return entity;
     },
+    addBLESensor(entityId, entityName, offeringID, mapView, options) {
+        let now = Date.now();
+        let dRecOptions = {
+            startTime: new Date(now - HISTORY_DEPTH_MILLIS).toISOString(),
+            endTime: new Date(now).toISOString(),
+            connect: true,
+            replaySpeed: 1
+        };
+
+        let locData = new OSH.DataReceiver.JSON('Location', {
+            protocol: WEBSOCKET_PROTOCOL,
+            service: SOS,
+            endpointUrl: SCIRA_SOS_ENDPT,
+            offeringID: offeringID,
+            observedProperty: 'http://sensorml.com/ont/swe/property/Location',
+            startTime: 'now',
+            // endTime: new Date(now).toISOString(),
+            endTime: '2020-01-01',
+            replaySpeed: 1,
+            syncMasterTime: SYNC,
+            bufferingTime: 100,
+            timeOut: 4000,
+            connect: false
+        });
+
+        let distData = new OSH.DataReceiver.JSON('Distance', {
+            protocol: WEBSOCKET_PROTOCOL,
+            service: SOS,
+            endpointUrl: SCIRA_SOS_ENDPT,
+            offeringID: offeringID,
+            observedProperty: 'http://sensorml.com/ont/swe/property/distance',
+            startTime: 'now',
+            // endTime: new Date(now).toISOString(),
+            endTime: '2020-01-01',
+            replaySpeed: 1,
+            syncMasterTime: SYNC,
+            bufferingTime: 100,
+            timeOut: 4000,
+            connect: false
+        });
+
+        let entity = {
+            id: entityId,
+            name: entityName,
+            dataSources: [locData, distData]
+        };
+        dataReceiverController.addEntity(entity);
+        let ctxtDS = {
+            locData: locData,
+            distance: distData
+        };
+        let contextMenus = Context.createBLEContextMenu(entity, {}, ctxtDS);
+        entity.contextMenus = contextMenus;
+
+        treeItems.push({
+            entity: entity,
+            entityId: entity.id,
+            path: 'BLE Beacon Ranging',
+            treeIcon: './images/light/2x/android2x.png',
+            contextMenuId: contextMenus.stack.id
+        });
+
+        let styler = new OSH.UI.Styler.PointMarker({
+            location:{
+                x:0,
+                y:0,
+                z:0
+            },
+            locationFunc: {
+                dataSourceIds: [locData.getId()],
+                handler: function (rec) {
+                    console.log(rec);
+                    return {
+                        x: rec.location.lon,
+                        y: rec.location.lat,
+                        // z: rec.location.alt
+                        z: 0
+                    };
+                }
+            },
+            icon: './images/light/2x/android2x.png',
+
+            label: entityName
+        });
+        entity.locStyler = styler;
+        console.log(mapView);
+        mapView.addViewItem({
+            name: entity.name,
+            entityId: entity.id,
+            styler: styler,
+            contextMenuId: contextMenus.circle.id
+        });
+        entity.sensorType = 'Android';
+
+        return entity;
+    },
     addUAV(entityID, entityName, offeringID, videoOfferingID, mapView, options) {
         console.log('Adding Drone: ', entityID);
 
@@ -1297,7 +1394,7 @@ let Sensors = {
 
         let locationData =
             new OSH.DataReceiver.LatLonAlt('Location', {
-                protocol: 'wss',
+                protocol: WEBSOCKET_PROTOCOL,
                 service: SOS,
                 endpointUrl: SCIRA_SOS_ENDPT,
                 // endpointUrl: localSOS,
@@ -1315,7 +1412,7 @@ let Sensors = {
 
         // let attitudeData = new OSH.DataReceiver.OrientationQuaternion('Orientation', {
         let attitudeData = new OSH.DataReceiver.JSON('Orientation', {
-            protocol: 'wss',
+            protocol: WEBSOCKET_PROTOCOL,
             service: SOS,
             endpointUrl: SCIRA_SOS_ENDPT,
             // endpointUrl: localSOS,
@@ -1331,7 +1428,7 @@ let Sensors = {
             connect: dRecOptions.connect
         });
         let videoData = new OSH.DataReceiver.VideoH264('Video', {
-            protocol: 'wss',
+            protocol: WEBSOCKET_PROTOCOL,
             service: SOS,
             endpointUrl: SCIRA_SOS_ENDPT,
             // endpointUrl: localSOS,
@@ -1347,7 +1444,7 @@ let Sensors = {
             connect: dRecOptions.connect
         });
         let gimbalData = new OSH.DataReceiver.EulerOrientation('Orientation', {
-            protocol: 'wss',
+            protocol: WEBSOCKET_PROTOCOL,
             service: SOS,
             endpointUrl: SCIRA_SOS_ENDPT,
             // endpointUrl: localSOS,
@@ -1633,7 +1730,7 @@ let Sensors = {
         };
 
         let locData = new OSH.DataReceiver.JSON('Location', {
-            protocol: 'wss',
+            protocol: WEBSOCKET_PROTOCOL,
             service: SOS,
             endpointUrl: SCIRA_SOS_ENDPT,
             // endpointUrl: '192.168.1.194:8181/sensorhub/sos',
@@ -1903,7 +2000,7 @@ let Automation = {
             // foi: foi
         };
         let dataRecProps = {
-            protocol: 'wss',
+            protocol: WEBSOCKET_PROTOCOL,
             service: SOS,
             endpointUrl: SCIRA_SOS_ENDPT,
             offeringID: offeringID,
@@ -1951,7 +2048,7 @@ let Automation = {
         // req.send();
 
         let multiData = new OSH.DataReceiver.JSONMultiMaster('AVLMultiTester', {
-            protocol: 'wss',
+            protocol: WEBSOCKET_PROTOCOL,
             service: SOS,
             endpointUrl: SCIRA_SOS_ENDPT,
             offeringID: offeringID,
@@ -2123,9 +2220,15 @@ let Automation = {
     addAndroidDevices: function () {
         let offerings = Utilities.getHubOfferings();
         for (let offering of offerings) {
-            if (offering.identifier.includes('android')) {
+            console.log(offering);
+            if (offering.identifier.includes('android') && !offering.identifier.includes('ble_beacon') && !offering.name.includes('Storage')) {
                 console.info('Adding Android Device');
                 let entity = Sensors.addAndroidPhoneSensor(offering.name, offering.name, offering.identifier, cesiumView, {});
+                locStylerToEntities[entity.locStyler.id] = entity;
+            }
+            if (offering.identifier.includes('ble_beacon')) {
+                console.info('Adding BLE Device');
+                let entity = Sensors.addBLESensor(offering.name, offering.name, offering.identifier, cesiumView, {});
                 locStylerToEntities[entity.locStyler.id] = entity;
             }
         }
@@ -2667,6 +2770,107 @@ let Context = {
             if (locDataSource.connected === true) {
                 locDataSource.disconnect();
                 hdgDataSource.disconnect();
+            }
+
+            for (let csEntity of cesiumView.viewer.entities._entities._array) {
+                if (csEntity._dsid === cesiumView.stylerToObj[parentEntity.locStyler.id]) {
+                    csEntity.show = false;
+                    break;
+                }
+            }
+        }
+
+        function dialogAndDSController(callerType, dataSource) {
+            let videoDialog;
+
+            if (callerType === 'video') {
+                if (!chartMap.video.hasOwnProperty('dialog')) {
+                    videoDialog = UI.createMultiDialog('android-video', [video], parentEntity.name + ' Video', true);
+                    chartMap.video.dialog = videoDialog;
+                    let videoView = new OSH.UI.MjpegView(videoDialog.popContentDiv.id, {
+                        dataSourceId: [dataSources.video.getId()],
+                        entityId: parentEntity.id,
+                        css: "video",
+                        cssSelected: "video-selected",
+                        width: 360,
+                        height: 300
+                    });
+                    chartMap.video.view = videoView;
+                }
+                let dialogElem = document.getElementById(chartMap.video.dialog.id);
+                console.log(dialogElem);
+                dialogElem.style.visibility = 'visible';
+                dialogElem.style.display = 'block';
+            }
+            dataSource.connect();
+        }
+    },
+    createBLEContextMenu(parentEntity, entityIds, dataSources) {
+        let menuItems = [];
+        let chartMap = {
+            marker: {},
+        };
+        let locationIcon = {
+            name: 'Show Map Icon',
+            css: 'fa fa-map-marker',
+            clickOverride: pointMarkerConnector,
+            locationDatasource: dataSources.locData
+        };
+        let locationIconHide = {
+            name: 'Hide Map Icon',
+            css: 'fa fa-map-marker',
+            clickOverride: pointMarkerDisconnector,
+            locationDatasource: dataSources.locData
+        };
+        menuItems.push(locationIcon, locationIconHide);
+        let circContextMenu = new OSH.UI.ContextMenu.CircularMenu({
+            id: 'menu-' + OSH.Utils.randomUUID(),
+            groupId: '',
+            items: menuItems
+        });
+        let stackCtxtMenu = new OSH.UI.ContextMenu.StackMenu({
+            id: 'menu-' + OSH.Utils.randomUUID(),
+            groupId: '',
+            items: menuItems
+        });
+        return {
+            circle: circContextMenu,
+            stack: stackCtxtMenu
+        };
+
+        function pointMarkerConnector(event) {
+            console.debug('Show BLE sensor:', parentEntity);
+            let locDataSource = dataSources.locData;
+            if (locDataSource.connected === false) {
+                locDataSource.connect();
+            }
+
+            // Use Portion of Top Level Show Function Here
+            for (let csEntity of cesiumView.viewer.entities._entities._array) {
+                if (csEntity._dsid === cesiumView.stylerToObj[parentEntity.locStyler.id]) {
+                    csEntity.show = true;
+                    break;
+                }
+            }
+
+            // HACK to zoom to vehicle entity
+            let prevSelected = cesiumView.viewer.selectedEntity;
+            let zoomToSelected = function () {
+                let selected = cesiumView.viewer.selectedEntity;
+                if (typeof (selected) !== "undefined" && selected !== prevSelected) {
+                    cesiumView.viewer.zoomTo(cesiumView.viewer.selectedEntity,
+                        new Cesium.HeadingPitchRange(0.0, -90, 3000));
+                } else {
+                    setTimeout(zoomToSelected, 100);
+                }
+            };
+            setTimeout(zoomToSelected, 100);
+        }
+
+        function pointMarkerDisconnector(event) {
+            let locDataSource = dataSources.locData;
+            if (locDataSource.connected === true) {
+                locDataSource.disconnect();
             }
 
             for (let csEntity of cesiumView.viewer.entities._entities._array) {
@@ -4021,3 +4225,7 @@ function ZoomSelectionToggle() {
         btn.className = 'btn-active'
     }
 }
+
+OSH.UI.Styler.AreaMarker = OSH.UI.Styler.extend({
+    
+});
