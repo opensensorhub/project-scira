@@ -1299,7 +1299,6 @@ let Sensors = {
             offeringID: offeringID,
             observedProperty: 'http://sensorml.com/ont/swe/property/distance',
             startTime: 'now',
-            // endTime: new Date(now).toISOString(),
             endTime: '2020-01-01',
             replaySpeed: 1,
             syncMasterTime: SYNC,
@@ -1329,6 +1328,9 @@ let Sensors = {
             contextMenuId: contextMenus.stack.id
         });
 
+        let areaCircle;
+        let groundPrimitives = {};
+        let lastLat, lastLon, lastAlt;
         let styler = new OSH.UI.Styler.PointMarker({
             location:{
                 x:0,
@@ -1336,9 +1338,39 @@ let Sensors = {
                 z:0
             },
             locationFunc: {
-                dataSourceIds: [locData.getId()],
+                dataSourceIds: [locData.getId(), distData.getId()],
                 handler: function (rec) {
-                    console.log(rec);
+
+                    // HACK: implement in an actual styler later
+
+                    let radius = 0;
+                    if(typeof (rec.location) !== 'undefined'){
+                        lastLat = rec.location.lat;
+                        lastLon = rec.location.lon;
+                        lastAlt = 0;
+                    }
+                    console.log(lastLat, lastLon, lastAlt);
+                    console.log(areaCircle);
+                    if(typeof (rec.distance) !== 'undefined'){
+                        mapView.viewer.scene.primitives.remove(groundPrimitives[0]);
+                        radius = rec.distance;
+                        areaCircle = new Cesium.GeometryInstance({
+                            geometry: new Cesium.CircleGeometry({
+                                center: Cesium.Cartesian3.fromDegrees(lastLon, lastLat, lastAlt),
+                                radius: radius
+                            }),
+                            id: "circle",
+                            attributes: {
+                                color: new Cesium.ColorGeometryInstanceAttribute(0.0, 0.0, 1.0, 0.3)
+                            }
+                        });
+                        groundPrimitives[0] = new Cesium.GroundPrimitive({
+                            geometryInstances: [areaCircle]
+                        });
+                        mapView.viewer.scene.primitives.add(groundPrimitives[0]);
+                    }
+
+                    // End hacky stuff
                     return {
                         x: rec.location.lon,
                         y: rec.location.lat,
@@ -2841,8 +2873,10 @@ let Context = {
         function pointMarkerConnector(event) {
             console.debug('Show BLE sensor:', parentEntity);
             let locDataSource = dataSources.locData;
+            let distDataSource = dataSources.distance;
             if (locDataSource.connected === false) {
                 locDataSource.connect();
+                distDataSource.connect();
             }
 
             // Use Portion of Top Level Show Function Here
@@ -2869,8 +2903,10 @@ let Context = {
 
         function pointMarkerDisconnector(event) {
             let locDataSource = dataSources.locData;
+            let distDataSource = dataSources.distance;
             if (locDataSource.connected === true) {
                 locDataSource.disconnect();
+                distDataSource.disconnect();
             }
 
             for (let csEntity of cesiumView.viewer.entities._entities._array) {
@@ -4227,5 +4263,141 @@ function ZoomSelectionToggle() {
 }
 
 OSH.UI.Styler.AreaMarker = OSH.UI.Styler.extend({
-    
+    initialize: function (properties) {
+        this._super(properties);
+        this.properties = properties;
+        this.location = null;
+        this.orientation = {heading: 0};
+        this.icon = null;
+        this.iconAnchor = [16, 16];
+        this.label = null;
+        this.color = "#000000";
+        this.circle = null;
+        // TODO: make sure to integrate into Toolkit Source
+        this.description = null;
+
+        this.options = {};
+
+        if (typeof (properties.location) != "undefined") {
+            this.location = properties.location;
+        }
+
+        if (typeof (properties.orientation) != "undefined") {
+            this.orientation = properties.orientation;
+        }
+
+        if (typeof (properties.icon) != "undefined") {
+            this.icon = properties.icon;
+        }
+
+        if (typeof (properties.iconAnchor) != "undefined") {
+            this.iconAnchor = properties.iconAnchor;
+        }
+
+        if (typeof (properties.label) != "undefined") {
+            this.label = properties.label;
+        }
+
+        if (typeof (properties.color) != "undefined") {
+            this.color = properties.color;
+        }
+
+        // TODO: Remove if not needed later
+        if (properties.hasOwnProperty('options')) {
+            this.options = properties.options;
+        }
+
+        if (typeof (properties.locationFunc) != "undefined") {
+            var fn = function (rec, timeStamp, options) {
+                this.location = properties.locationFunc.handler(rec, timeStamp, options);
+            }.bind(this);
+            this.addFn(properties.locationFunc.dataSourceIds, fn);
+        }
+
+        if (typeof (properties.orientationFunc) != "undefined") {
+            var fn = function (rec, timeStamp, options) {
+                this.orientation = properties.orientationFunc.handler(rec, timeStamp, options);
+            }.bind(this);
+            this.addFn(properties.orientationFunc.dataSourceIds, fn);
+        }
+
+        if (typeof (properties.iconFunc) != "undefined") {
+            var fn = function (rec, timeStamp, options) {
+                this.icon = properties.iconFunc.handler(rec, timeStamp, options);
+            }.bind(this);
+            this.addFn(properties.iconFunc.dataSourceIds, fn);
+        }
+
+        if (typeof (properties.labelFunc) != "undefined") {
+            var fn = function (rec, timeStamp, options) {
+                this.label = properties.labelFunc.handler(rec, timeStamp, options);
+            }.bind(this);
+            this.addFn(properties.labelFunc.dataSourceIds, fn);
+        }
+
+        if (typeof (properties.colorFunc) != "undefined") {
+            var fn = function (rec, timeStamp, options) {
+                this.color = properties.colorFunc.handler(rec, timeStamp, options);
+            }.bind(this);
+            this.addFn(properties.colorFunc.dataSourceIds, fn);
+        }
+
+        // TODO: add to Source Files
+        if (typeof (properties.description) != "undefined") {
+            this.description = properties.description;
+        }
+
+        if (typeof (properties.grouped) != 'undefined') {
+            this.grouped = properties.grouped;
+            this.idList = properties.idList;
+        }
+
+        if (typeof (properties.circleFunc) != "undefined") {
+            var fn = function (rec, timeStamp, options) {
+                this.circleFunc = properties.circleFunc.handler(rec, timeStamp, options);
+            }.bind(this);
+            this.addFn(properties.circleFunc.dataSourceIds, fn);
+        }
+    },
+
+    /**
+     *
+     * @param $super
+     * @param view
+     * @memberof OSH.UI.Styler.AreaMarker
+     * @instance
+     */
+    init: function (view) {
+        this._super(view);
+        if (typeof (view) != "undefined" && this.location != null) {
+            view.updateMarker(this, 0, {});
+        }
+    },
+
+    /**
+     *
+     * @param $super
+     * @param dataSourceId
+     * @param rec
+     * @param view
+     * @param options
+     * @memberof OSH.UI.Styler.AreaMarker
+     * @instance
+     */
+    setData: function (dataSourceId, rec, view, options) {
+        if (this._super(dataSourceId, rec, view, options)) {
+            if (typeof (view) != "undefined" && this.location != null) {
+                view.updateMarker(this, rec.timeStamp, options);
+            }
+        }
+    },
+
+    /**
+     *
+     * @param $super
+     * @memberof OSH.UI.Styler.AreaMarker
+     * @instance
+     */
+    clear: function ($super) {
+    }
 });
