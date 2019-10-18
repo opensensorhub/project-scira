@@ -280,7 +280,7 @@ function init() {
             case 'USGS Stream Gages':
                 let usgsMenu = MarkerLayers.usgsContext();
                 node.contextMenu = usgsMenu.id;
-                console.log('USGS CONTEXT MENU',usgsMenu);
+                console.log('USGS CONTEXT MENU', usgsMenu);
                 break;
             case 'NOAA Buoys':
                 let noaaMenu = MarkerLayers.noaaContext();
@@ -1226,10 +1226,10 @@ let Sensors = {
         });
 
         let styler = new OSH.UI.Styler.PointMarker({
-            location:{
-                x:0,
-                y:0,
-                z:0
+            location: {
+                x: 0,
+                y: 0,
+                z: 0
             },
             locationFunc: {
                 dataSourceIds: [locData.getId()],
@@ -1329,32 +1329,34 @@ let Sensors = {
         });
 
         let areaCircle;
+        let circleID = entityId + '-circle';
         let groundPrimitives = {};
-        let lastLat, lastLon, lastAlt;
+        let lastLat, lastLon, lastAlt, lastRadius;
         let styler = new OSH.UI.Styler.PointMarker({
-            location:{
-                x:0,
-                y:0,
-                z:0
+            location: {
+                x: 0,
+                y: 0,
+                z: 0
             },
             locationFunc: {
                 dataSourceIds: [locData.getId(), distData.getId()],
                 handler: function (rec) {
 
                     // HACK: implement in an actual styler later
-
-                    let radius = 0;
-                    if(typeof (rec.location) !== 'undefined'){
+                    // mapView.viewer.scene.primitives.remove(groundPrimitives[0]);
+                    console.log(mapView.viewer.scene.primitives);
+                    // let radius = 0;
+                    if (typeof (rec.location) !== 'undefined') {
                         lastLat = rec.location.lat;
                         lastLon = rec.location.lon;
                         lastAlt = 0;
                     }
-                    console.log(lastLat, lastLon, lastAlt);
-                    console.log(areaCircle);
-                    if(typeof (rec.distance) !== 'undefined'){
-                        mapView.viewer.scene.primitives.remove(groundPrimitives[0]);
-                        radius = rec.distance;
-                        areaCircle = new Cesium.GeometryInstance({
+                    // console.log(lastLat, lastLon, lastAlt);
+                    // console.log(areaCircle);
+                    if (typeof (rec.distance) !== 'undefined') {
+                        lastRadius = rec.distance;
+                        // radius = rec.distance;
+                        /*areaCircle = new Cesium.GeometryInstance({
                             geometry: new Cesium.CircleGeometry({
                                 center: Cesium.Cartesian3.fromDegrees(lastLon, lastLat, lastAlt),
                                 radius: radius
@@ -1367,10 +1369,59 @@ let Sensors = {
                         groundPrimitives[0] = new Cesium.GroundPrimitive({
                             geometryInstances: [areaCircle]
                         });
-                        mapView.viewer.scene.primitives.add(groundPrimitives[0]);
+                        mapView.viewer.scene.primitives.add(groundPrimitives[0]);*/
                     }
 
+                    // CASE: No circle primitive exists
+                    if (typeof (areaCircle) === 'undefined') {
+                        if (typeof (lastLat) !== 'undefined' && typeof (lastRadius) !== 'undefined') {
+                            // Create Circle Object
+                            areaCircle = new Cesium.Entity({
+                                id: circleID,
+                                position: Cesium.Cartesian3.fromDegrees(lastLon, lastLat, lastAlt),
+                                ellipse: {
+                                    semiMinorAxis: lastRadius,
+                                    semiMajorAxis: lastRadius,
+                                    material: Cesium.Color.BLUE
+                                }
+                            });
+                            /* areaCircle = new Cesium.GeometryInstance({
+                                 geometry: new Cesium.CircleGeometry({
+                                     center: Cesium.Cartesian3.fromDegrees(lastLon, lastLat, lastAlt),
+                                     radius: lastRadius
+                                 }),
+                                 id: "circle",
+                                 attributes: {
+                                     color: new Cesium.ColorGeometryInstanceAttribute(0.0, 0.0, 1.0, 0.3)
+                                 }
+                             });
+                             // Add Circle to primitives array
+                             groundPrimitives[0] = new Cesium.GroundPrimitive({
+                                 geometryInstances: [areaCircle]
+                             });
+                             mapView.viewer.scene.primitives.add(groundPrimitives[0]);*/
+                            mapView.viewer.entities.add(areaCircle);
+                            console.log('Added Circle');
+                        }
+                    }
+                    // CASE: Circle Primitive exists
+                    if (typeof (areaCircle) !== 'undefined') {
+                        console.log(areaCircle, lastLat, lastRadius);
+                        if (typeof (lastLat) !== 'undefined' && typeof (lastRadius) !== 'undefined') {
+                            console.log(areaCircle);
+                            // Create Circle Object
+                            areaCircle.position = Cesium.Cartesian3.fromDegrees(lastLon, lastLat, lastAlt);
+                            areaCircle.ellipse.semiMajorAxis = lastRadius;
+                            areaCircle.ellipse.semiMinorAxis = lastRadius;
+                            /*areaCircle.geometry.center = Cesium.Cartesian3.fromDegrees(lastLon, lastLat, lastAlt);
+                            areaCircle.geometry.radius = lastRadius;*/
+                            // groundPrimitives[0].geometryInstances = [areaCircle];
+                            console.log(areaCircle);
+                            console.log('Updating Circle');
+                        }
+                    }
                     // End hacky stuff
+
                     return {
                         x: rec.location.lon,
                         y: rec.location.lat,
@@ -2137,16 +2188,16 @@ let Automation = {
                     }
                 },
                 icon: './images/light/2x/snowplow2x.png',
-               /* iconFunc:{
-                    dataSourceIds:[locationDS.getId()],
-                    handler: function (rec) {
-                        if(rec.location.lon !== undefined && rec.location.lon !== 0){
-                            return '';
-                        } else{
-                            return './images/light/2x/snowplow2x.png';
-                        }
-                    }
-                },*/
+                /* iconFunc:{
+                     dataSourceIds:[locationDS.getId()],
+                     handler: function (rec) {
+                         if(rec.location.lon !== undefined && rec.location.lon !== 0){
+                             return '';
+                         } else{
+                             return './images/light/2x/snowplow2x.png';
+                         }
+                     }
+                 },*/
                 label: entity.name,
                 description: description
             });
@@ -3799,7 +3850,7 @@ let Tables = {
             rowClick: function (e, row) {
                 let name = row.getData().name;
                 let id = name.split(' ')[2];
-                console.log('USGS ID:',id);
+                console.log('USGS ID:', id);
                 for (let item of treeItems) {
                     // console.log("Item: ", item);
                     if (item.entityId === id) {
@@ -3835,7 +3886,7 @@ let Tables = {
             rowClick: function (e, row) {
                 let name = row.getData().name;
                 let id = name.split(' ')[3];
-                console.log('Buoy ID:',id);
+                console.log('Buoy ID:', id);
                 for (let item of treeItems) {
                     console.log("Item: ", item);
                     if (item.entityId === id) {
@@ -3888,7 +3939,7 @@ let Tables = {
             rowClick: function (e, row) {
                 let name = row.getData().name;
                 let id = name.split(' ')[2];
-                console.log('Mesonet ID:',id);
+                console.log('Mesonet ID:', id);
                 for (let item of treeItems) {
                     console.log("Item: ", item);
                     if (item.entity.name.includes('(' + id + ')')) {
