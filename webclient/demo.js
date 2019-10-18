@@ -1363,7 +1363,7 @@ let Sensors = {
                                 ellipse: {
                                     semiMinorAxis: lastRadius,
                                     semiMajorAxis: lastRadius,
-                                    material: Cesium.Color.BLUE
+                                    material: new Cesium.Color(0.0, 0.0, 1.0, 0.5)
                                 }
                             });
                             mapView.viewer.entities.add(areaCircle);
