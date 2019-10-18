@@ -1343,33 +1343,14 @@ let Sensors = {
                 handler: function (rec) {
 
                     // HACK: implement in an actual styler later
-                    // mapView.viewer.scene.primitives.remove(groundPrimitives[0]);
                     console.log(mapView.viewer.scene.primitives);
-                    // let radius = 0;
                     if (typeof (rec.location) !== 'undefined') {
                         lastLat = rec.location.lat;
                         lastLon = rec.location.lon;
                         lastAlt = 0;
                     }
-                    // console.log(lastLat, lastLon, lastAlt);
-                    // console.log(areaCircle);
                     if (typeof (rec.distance) !== 'undefined') {
                         lastRadius = rec.distance;
-                        // radius = rec.distance;
-                        /*areaCircle = new Cesium.GeometryInstance({
-                            geometry: new Cesium.CircleGeometry({
-                                center: Cesium.Cartesian3.fromDegrees(lastLon, lastLat, lastAlt),
-                                radius: radius
-                            }),
-                            id: "circle",
-                            attributes: {
-                                color: new Cesium.ColorGeometryInstanceAttribute(0.0, 0.0, 1.0, 0.3)
-                            }
-                        });
-                        groundPrimitives[0] = new Cesium.GroundPrimitive({
-                            geometryInstances: [areaCircle]
-                        });
-                        mapView.viewer.scene.primitives.add(groundPrimitives[0]);*/
                     }
 
                     // CASE: No circle primitive exists
@@ -1385,39 +1366,16 @@ let Sensors = {
                                     material: Cesium.Color.BLUE
                                 }
                             });
-                            /* areaCircle = new Cesium.GeometryInstance({
-                                 geometry: new Cesium.CircleGeometry({
-                                     center: Cesium.Cartesian3.fromDegrees(lastLon, lastLat, lastAlt),
-                                     radius: lastRadius
-                                 }),
-                                 id: "circle",
-                                 attributes: {
-                                     color: new Cesium.ColorGeometryInstanceAttribute(0.0, 0.0, 1.0, 0.3)
-                                 }
-                             });
-                             // Add Circle to primitives array
-                             groundPrimitives[0] = new Cesium.GroundPrimitive({
-                                 geometryInstances: [areaCircle]
-                             });
-                             mapView.viewer.scene.primitives.add(groundPrimitives[0]);*/
                             mapView.viewer.entities.add(areaCircle);
-                            console.log('Added Circle');
                         }
                     }
                     // CASE: Circle Primitive exists
                     if (typeof (areaCircle) !== 'undefined') {
                         console.log(areaCircle, lastLat, lastRadius);
                         if (typeof (lastLat) !== 'undefined' && typeof (lastRadius) !== 'undefined') {
-                            console.log(areaCircle);
-                            // Create Circle Object
                             areaCircle.position = Cesium.Cartesian3.fromDegrees(lastLon, lastLat, lastAlt);
                             areaCircle.ellipse.semiMajorAxis = lastRadius;
                             areaCircle.ellipse.semiMinorAxis = lastRadius;
-                            /*areaCircle.geometry.center = Cesium.Cartesian3.fromDegrees(lastLon, lastLat, lastAlt);
-                            areaCircle.geometry.radius = lastRadius;*/
-                            // groundPrimitives[0].geometryInstances = [areaCircle];
-                            console.log(areaCircle);
-                            console.log('Updating Circle');
                         }
                     }
                     // End hacky stuff
