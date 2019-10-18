@@ -1324,7 +1324,7 @@ let Sensors = {
             entity: entity,
             entityId: entity.id,
             path: 'BLE Beacon Ranging',
-            treeIcon: './images/light/2x/android2x.png',
+            treeIcon: './vendor/images/tree/blue_key.png',
             contextMenuId: contextMenus.stack.id
         });
 
@@ -1388,7 +1388,7 @@ let Sensors = {
                     };
                 }
             },
-            icon: './images/light/2x/android2x.png',
+            icon: './vendor/images/tree/blue_key.png',
 
             label: entityName
         });
