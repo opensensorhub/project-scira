@@ -1333,15 +1333,26 @@ let Sensors = {
         let groundPrimitives = {};
         let lastLat, lastLon, lastAlt, lastRadius;
         let styler = new OSH.UI.Styler.PointMarker({
-            location: {
+            /*location: {
                 x: 0,
                 y: 0,
                 z: 0
+            },*/
+            locationFunc:{
+                dataSourceIds: [locData.getId()],
+                handler: function (rec) {
+                    return {
+                        x: rec.est_location.lon,
+                        y: rec.est_location.lat,
+                        // z: rec.location.alt
+                        z: 0
+                    };
+                }
             },
-            locationFunc: {
+            /*locationFunc: {
                 dataSourceIds: [locData.getId(), distData.getId()],
                 handler: function (rec) {
-
+                    // console.log(rec);
                     // HACK: implement in an actual styler later
                     console.log(mapView.viewer.scene.primitives);
                     if (typeof (rec.location) !== 'undefined') {
@@ -1387,7 +1398,7 @@ let Sensors = {
                         z: 0
                     };
                 }
-            },
+            },*/
             icon: './vendor/images/tree/blue_key.png',
 
             label: entityName
