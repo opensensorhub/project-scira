@@ -1292,6 +1292,21 @@ let Sensors = {
             connect: false
         });
 
+        let beaconData = new OSH.DataReceiver.JSON('Beacon Data', {
+            protocol: WEBSOCKET_PROTOCOL,
+            service: SOS,
+            endpointUrl: SCIRA_SOS_ENDPT,
+            offeringID: offeringID,
+            observedProperty: 'http://sensorml.com/ont/swe/property/beacons_data',
+            startTime: 'now',
+            endTime: '2020-01-01',
+            replaySpeed: 1,
+            syncMasterTime: SYNC,
+            bufferingTime: 100,
+            timeOut: 4000,
+            connect: false
+        });
+
         let distData = new OSH.DataReceiver.JSON('Distance', {
             protocol: WEBSOCKET_PROTOCOL,
             service: SOS,
@@ -1307,17 +1322,24 @@ let Sensors = {
             connect: false
         });
 
+        let areaCircle;
+        let circleID = entityId + '-circle';
+        let groundPrimitives = {};
+        let lastLat, lastLon, lastAlt, lastRadius;
+        let clampToNearest = false;
+
         let entity = {
             id: entityId,
             name: entityName,
-            dataSources: [locData, distData]
+            dataSources: [locData, distData, beaconData]
         };
         dataReceiverController.addEntity(entity);
         let ctxtDS = {
             locData: locData,
+            beaconData: beaconData,
             distance: distData
         };
-        let contextMenus = Context.createBLEContextMenu(entity, {}, ctxtDS);
+        let contextMenus = Context.createBLEContextMenu(entity, {}, ctxtDS, {clampToNearest: clampToNearest});
         entity.contextMenus = contextMenus;
 
         treeItems.push({
@@ -1328,25 +1350,40 @@ let Sensors = {
             contextMenuId: contextMenus.stack.id
         });
 
-        let areaCircle;
-        let circleID = entityId + '-circle';
-        let groundPrimitives = {};
-        let lastLat, lastLon, lastAlt, lastRadius;
-        let styler = new OSH.UI.Styler.PointMarker({
+
+        let locStyler = new OSH.UI.Styler.PointMarker({
             /*location: {
                 x: 0,
                 y: 0,
                 z: 0
             },*/
-            locationFunc:{
-                dataSourceIds: [locData.getId()],
+            locationFunc: {
+                dataSourceIds: [locData.getId(), beaconData.getId()],
                 handler: function (rec) {
-                    return {
-                        x: rec.est_location.lon,
-                        y: rec.est_location.lat,
-                        // z: rec.location.alt
-                        z: 0
-                    };
+                    console.log(rec);
+                    console.log(clampToNearest);
+                    if (!clampToNearest && rec.hasOwnProperty('est_location')) {
+                        return {
+                            x: rec.est_location.lon,
+                            y: rec.est_location.lat,
+                            // z: rec.location.alt
+                            z: 0
+                        };
+                    } else if (clampToNearest && rec.hasOwnProperty('beacon_1')
+                        && rec.hasOwnProperty('beacon_2') && rec.hasOwnProperty('beacon_3')) {
+                        // TODO: fix once distance is added to the beacon location data vector
+                        let closest = 'beacon_1';
+                        let nearDist = Math.min(...[rec.beacon_1.dist, rec.beacon_2.distance, rec.beacon_3.dist]);
+                        if(nearDist === rec.beacon_1.distance) closest = "beacon_1";
+                        else if(nearDist === rec.beacon_2.distance) closest = "beacon_2";
+                        else if(nearDist === rec.beacon_3.distance) closest = "beacon_3";
+                        console.log('Closest Beacon: ' + closest);
+                        return {
+                            x: rec[closest].lon,
+                            y: rec[closest].lat,
+                            z: 0
+                        };
+                    }
                 }
             },
             /*locationFunc: {
@@ -1400,15 +1437,30 @@ let Sensors = {
                 }
             },*/
             icon: './vendor/images/tree/blue_key.png',
-
             label: entityName
         });
-        entity.locStyler = styler;
-        console.log(mapView);
+        /*let beaconLocStyler =  new OSH.UI.Styler.PointMarker({
+            locationFunc:{
+                dataSourceIds: [beaconData.getId()],
+                handler: function (rec) {
+                    console.log(rec);
+                    return {
+                        x: rec.beacon_1_location.lon,
+                        y: rec.beacon_1_location.lat,
+                        // z: rec.location.alt
+                        z: 0
+                    };
+                }
+            },
+            icon: './vendor/images/tree/blue_key.png',
+            label: entityName
+        });*/
+        entity.locStyler = locStyler;
+        // console.log(mapView);
         mapView.addViewItem({
             name: entity.name,
             entityId: entity.id,
-            styler: styler,
+            styler: locStyler,
             contextMenuId: contextMenus.circle.id
         });
         entity.sensorType = 'Android';
@@ -2857,7 +2909,7 @@ let Context = {
             dataSource.connect();
         }
     },
-    createBLEContextMenu(parentEntity, entityIds, dataSources) {
+    createBLEContextMenu(parentEntity, entityIds, dataSources, options) {
         let menuItems = [];
         let chartMap = {
             marker: {},
@@ -2874,7 +2926,15 @@ let Context = {
             clickOverride: pointMarkerDisconnector,
             locationDatasource: dataSources.locData
         };
-        menuItems.push(locationIcon, locationIconHide);
+        let clampToNearestBeacon = {
+            name: 'Clamp To Nearest Beacon',
+            css: 'fa fa-map-marker',
+            clickOverride: function (event) {
+                console.log(options);
+                options.clampToNearest = !options.clampToNearest;
+            }
+        };
+        menuItems.push(locationIcon, locationIconHide, clampToNearestBeacon);
         let circContextMenu = new OSH.UI.ContextMenu.CircularMenu({
             id: 'menu-' + OSH.Utils.randomUUID(),
             groupId: '',
@@ -2894,9 +2954,11 @@ let Context = {
             console.debug('Show BLE sensor:', parentEntity);
             let locDataSource = dataSources.locData;
             let distDataSource = dataSources.distance;
+            let beaconDataSource = dataSources.beaconData;
             if (locDataSource.connected === false) {
                 locDataSource.connect();
                 distDataSource.connect();
+                beaconDataSource.connect();
             }
 
             // Use Portion of Top Level Show Function Here
@@ -2924,9 +2986,11 @@ let Context = {
         function pointMarkerDisconnector(event) {
             let locDataSource = dataSources.locData;
             let distDataSource = dataSources.distance;
+            let beaconDataSource = dataSources.beaconData;
             if (locDataSource.connected === true) {
                 locDataSource.disconnect();
                 distDataSource.disconnect();
+                beaconDataSource.disconnect();
             }
 
             for (let csEntity of cesiumView.viewer.entities._entities._array) {
