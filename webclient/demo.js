@@ -1374,20 +1374,15 @@ let Sensors = {
                 z: 0
             },*/
             locationFunc: {
-                dataSourceIds: [locData.getId(), beaconData.getId(), nearestBeaconData.getId()],
+                dataSourceIds: [locData.getId(), beaconData.getId()],
                 handler: function (rec) {
                     console.log(rec);
                     console.log(clampToNearest);
 
-                    // if (!clampToNearest && rec.hasOwnProperty('est_location')) {
-                    if(rec.hasOwnProperty('nearest_beacon')){
+                    if (!clampToNearest && rec.hasOwnProperty('est_location')) {
                         return {
-                            /*x: rec.est_location.lon,
+                            x: rec.est_location.lon,
                             y: rec.est_location.lat,
-                            // z: rec.location.alt
-                            z: 0*/
-                            x: rec.nearest_beacon.lon,
-                            y: rec.nearest_beacon.lat,
                             // z: rec.location.alt
                             z: 0
                         };
@@ -1461,11 +1456,43 @@ let Sensors = {
             icon: './vendor/images/tree/blue_key.png',
             label: entityName
         });
-        /*let nearestLocStyler =  new OSH.UI.Styler.PointMarker({
+        let nearestLocStyler =  new OSH.UI.Styler.PointMarker({
             locationFunc:{
                 dataSourceIds: [nearestBeaconData.getId()],
                 handler: function (rec) {
                     console.log(rec);
+                    // HACK: implement in an actual styler later
+                    lastLat = rec.nearest_beacon.lat;
+                    lastLon = rec.nearest_beacon.lon;
+                    lastAlt = 0;
+                    lastRadius = rec.nearest_beacon.dist;
+                    // CASE: No circle primitive exists
+                    if (typeof (areaCircle) === 'undefined') {
+                        if (typeof (lastLat) !== 'undefined' && typeof (lastRadius) !== 'undefined') {
+                            // Create Circle Object
+                            areaCircle = new Cesium.Entity({
+                                id: circleID,
+                                position: Cesium.Cartesian3.fromDegrees(lastLon, lastLat, lastAlt),
+                                ellipse: {
+                                    semiMinorAxis: lastRadius,
+                                    semiMajorAxis: lastRadius,
+                                    material: new Cesium.Color(0.0, 0.0, 1.0, 0.5)
+                                }
+                            });
+                            mapView.viewer.entities.add(areaCircle);
+                        }
+                    }
+                    // CASE: Circle Primitive exists
+                    if (typeof (areaCircle) !== 'undefined') {
+                        console.log(areaCircle, lastLat, lastRadius);
+                        if (typeof (lastLat) !== 'undefined' && typeof (lastRadius) !== 'undefined') {
+                            areaCircle.position = Cesium.Cartesian3.fromDegrees(lastLon, lastLat, lastAlt);
+                            areaCircle.ellipse.semiMajorAxis = lastRadius;
+                            areaCircle.ellipse.semiMinorAxis = lastRadius;
+                        }
+                    }
+                    console.log(areaCircle);
+                    // End hacky stuff
                     return {
                         x: rec.nearest_beacon.lon,
                         y: rec.nearest_beacon.lat,
@@ -1475,10 +1502,10 @@ let Sensors = {
                 }
             },
             icon: './vendor/images/tree/blue_key.png',
-            label: entityName + ":nearest_ble"
-        });*/
+            label: entityName
+        });
         entity.locStyler = locStyler;
-        // entity.locStylerExtra = nearestLocStyler;
+        entity.locStylerExtra = nearestLocStyler;
         // console.log(mapView);
         mapView.addViewItem({
             name: entity.name,
@@ -1486,12 +1513,12 @@ let Sensors = {
             styler: locStyler,
             contextMenuId: contextMenus.circle.id
         });
-      /*  mapView.addViewItem({
+        mapView.addViewItem({
             name: entity.name + 'ble-near',
             entityId: entity.id,
             styler: nearestLocStyler,
             contextMenuId: contextMenus.circle.id
-        });*/
+        });
         entity.sensorType = 'Android';
 
         return entity;
@@ -3002,7 +3029,7 @@ let Context = {
                 locDataSource.connect();
                 distDataSource.connect();
                 beaconDataSource.connect();
-                nearest.connect();
+                // nearest.connect();
             }
 
             // Use Portion of Top Level Show Function Here
