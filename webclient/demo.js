@@ -1322,6 +1322,21 @@ let Sensors = {
             connect: false
         });
 
+        let nearestBeaconData = new OSH.DataReceiver.JSON('Nearest Beacon Data', {
+            protocol: WEBSOCKET_PROTOCOL,
+            service: SOS,
+            endpointUrl: SCIRA_SOS_ENDPT,
+            offeringID: offeringID,
+            observedProperty: 'http://sensorml.com/ont/swe/property/nearest_beacon',
+            startTime: 'now',
+            endTime: '2020-01-01',
+            replaySpeed: 1,
+            syncMasterTime: SYNC,
+            bufferingTime: 100,
+            timeOut: 4000,
+            connect: false
+        });
+
         let areaCircle;
         let circleID = entityId + '-circle';
         let groundPrimitives = {};
@@ -1331,13 +1346,14 @@ let Sensors = {
         let entity = {
             id: entityId,
             name: entityName,
-            dataSources: [locData, distData, beaconData]
+            dataSources: [locData, distData, beaconData, nearestBeaconData]
         };
         dataReceiverController.addEntity(entity);
         let ctxtDS = {
             locData: locData,
             beaconData: beaconData,
-            distance: distData
+            distance: distData,
+            nearest: nearestBeaconData
         };
         let contextMenus = Context.createBLEContextMenu(entity, {}, ctxtDS, {clampToNearest: clampToNearest});
         entity.contextMenus = contextMenus;
@@ -1358,14 +1374,20 @@ let Sensors = {
                 z: 0
             },*/
             locationFunc: {
-                dataSourceIds: [locData.getId(), beaconData.getId()],
+                dataSourceIds: [locData.getId(), beaconData.getId(), nearestBeaconData.getId()],
                 handler: function (rec) {
                     console.log(rec);
                     console.log(clampToNearest);
-                    if (!clampToNearest && rec.hasOwnProperty('est_location')) {
+
+                    // if (!clampToNearest && rec.hasOwnProperty('est_location')) {
+                    if(rec.hasOwnProperty('nearest_beacon')){
                         return {
-                            x: rec.est_location.lon,
+                            /*x: rec.est_location.lon,
                             y: rec.est_location.lat,
+                            // z: rec.location.alt
+                            z: 0*/
+                            x: rec.nearest_beacon.lon,
+                            y: rec.nearest_beacon.lat,
                             // z: rec.location.alt
                             z: 0
                         };
@@ -1439,23 +1461,24 @@ let Sensors = {
             icon: './vendor/images/tree/blue_key.png',
             label: entityName
         });
-        /*let beaconLocStyler =  new OSH.UI.Styler.PointMarker({
+        /*let nearestLocStyler =  new OSH.UI.Styler.PointMarker({
             locationFunc:{
-                dataSourceIds: [beaconData.getId()],
+                dataSourceIds: [nearestBeaconData.getId()],
                 handler: function (rec) {
                     console.log(rec);
                     return {
-                        x: rec.beacon_1_location.lon,
-                        y: rec.beacon_1_location.lat,
+                        x: rec.nearest_beacon.lon,
+                        y: rec.nearest_beacon.lat,
                         // z: rec.location.alt
                         z: 0
                     };
                 }
             },
             icon: './vendor/images/tree/blue_key.png',
-            label: entityName
+            label: entityName + ":nearest_ble"
         });*/
         entity.locStyler = locStyler;
+        // entity.locStylerExtra = nearestLocStyler;
         // console.log(mapView);
         mapView.addViewItem({
             name: entity.name,
@@ -1463,6 +1486,12 @@ let Sensors = {
             styler: locStyler,
             contextMenuId: contextMenus.circle.id
         });
+      /*  mapView.addViewItem({
+            name: entity.name + 'ble-near',
+            entityId: entity.id,
+            styler: nearestLocStyler,
+            contextMenuId: contextMenus.circle.id
+        });*/
         entity.sensorType = 'Android';
 
         return entity;
@@ -2930,8 +2959,21 @@ let Context = {
             name: 'Clamp To Nearest Beacon',
             css: 'fa fa-map-marker',
             clickOverride: function (event) {
-                console.log(options);
-                options.clampToNearest = !options.clampToNearest;
+                // console.log(options);
+                // options.clampToNearest = !options.clampToNearest;
+                let nearestDS = dataSources.nearest;
+                console.log(nearestDS);
+                if(nearestDS.connected === false){
+                    nearestDS.connect();
+                }else{
+                    nearestDS.disconnect();
+                }
+                for (let csEntity of cesiumView.viewer.entities._entities._array) {
+                    if (csEntity._dsid === cesiumView.stylerToObj[parentEntity.locStylerExtra.id]) {
+                        csEntity.show = true;
+                        break;
+                    }
+                }
             }
         };
         menuItems.push(locationIcon, locationIconHide, clampToNearestBeacon);
@@ -2955,10 +2997,12 @@ let Context = {
             let locDataSource = dataSources.locData;
             let distDataSource = dataSources.distance;
             let beaconDataSource = dataSources.beaconData;
+            let nearest = dataSources.nearest;
             if (locDataSource.connected === false) {
                 locDataSource.connect();
                 distDataSource.connect();
                 beaconDataSource.connect();
+                nearest.connect();
             }
 
             // Use Portion of Top Level Show Function Here
@@ -2987,10 +3031,12 @@ let Context = {
             let locDataSource = dataSources.locData;
             let distDataSource = dataSources.distance;
             let beaconDataSource = dataSources.beaconData;
+            let nearest = dataSources.nearest;
             if (locDataSource.connected === true) {
                 locDataSource.disconnect();
                 distDataSource.disconnect();
                 beaconDataSource.disconnect();
+                nearest.disconnect();
             }
 
             for (let csEntity of cesiumView.viewer.entities._entities._array) {
