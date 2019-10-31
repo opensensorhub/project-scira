@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   version: '0.1'
-  title: SensorThings API Tester
+  title: OpenSensorHub SensorThings API Tester
   description: Example SensorThings requests for SCIRA OpenSensorHub node.
 servers:
   - url: 'https://scira.georobotix.io:8282/sensorhub/sta/v1.0'
@@ -62,14 +62,14 @@ paths:
       responses:
         '201':
           $ref: '#/components/responses/201'
-  '/Things({thingId})':
+  '/Things({numId})':
     get:
       summary: Get info about a specific Thing
       operationId: getThing
       tags:
         - Things
       parameters:
-        - $ref: '#/components/parameters/thingId'
+        - $ref: '#/components/parameters/numId'
         - $ref: '#/components/parameters/select'
       responses:
         '200':
@@ -86,7 +86,7 @@ paths:
       security:
         - basicAuth: []
       parameters:
-        - $ref: '#/components/parameters/thingId'
+        - $ref: '#/components/parameters/numId'
       requestBody:
         content:
           application/json:
@@ -103,7 +103,7 @@ paths:
       security:
         - basicAuth: []
       parameters:
-        - $ref: '#/components/parameters/thingId'
+        - $ref: '#/components/parameters/numId'
       responses:
         '204':
           $ref: '#/components/responses/204'
@@ -140,14 +140,14 @@ paths:
       responses:
         '201':
           $ref: '#/components/responses/201'
-  '/Locations({locationId})':
+  '/Locations({numId})':
     get:
       summary: Get info about a specific Location
       operationId: getLocation
       tags:
         - Locations
       parameters:
-        - $ref: '#/components/parameters/locationId'
+        - $ref: '#/components/parameters/numId'
         - $ref: '#/components/parameters/select'
       responses:
         '200':
@@ -156,6 +156,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Location'
+                
+  /HistoricalLocations:
+    get:
+      summary: List or search for HistoricalLocations
+      operationId: listHistLocations
+      tags:
+        - HistoricalLocations
+      parameters:
+        - $ref: '#/components/parameters/select'
+      responses:
+        '200':
+          description: A paged array of HistoricalLocation resources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+  '/HistoricalLocations({complexId})':
+    get:
+      summary: Get info about a specific HistoricalLocation
+      operationId: getHistLocation
+      tags:
+        - HistoricalLocations
+      parameters:
+        - $ref: '#/components/parameters/complexId'
+        - $ref: '#/components/parameters/select'
+      responses:
+        '200':
+          description: OK. Successful request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoricalLocation'
 
   /Sensors:
     get:
@@ -189,14 +223,14 @@ paths:
       responses:
         '201':
           $ref: '#/components/responses/201'
-  '/Sensors({sensorId})':
+  '/Sensors({numId})':
     get:
       summary: Get info about a specific Sensor
       operationId: getSensor
       tags:
         - Sensors
       parameters:
-        - $ref: '#/components/parameters/sensorId'
+        - $ref: '#/components/parameters/numId'
         - $ref: '#/components/parameters/select'
       responses:
         '200':
@@ -205,6 +239,252 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Sensor'
+                
+  /Datastreams:
+    get:
+      summary: List or search for Datastreams
+      operationId: listDatastreams
+      tags:
+        - Datastreams
+      parameters:
+        - $ref: '#/components/parameters/select'
+      responses:
+        '200':
+          description: A paged array of Datastream resources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Datastream'
+    post:
+      security:
+        - basicAuth: []
+      summary: Create a new Datastream
+      operationId: createDatastream
+      tags:
+        - Datastreams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Datastream'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+  '/Datastreams({numId})':
+    get:
+      summary: Get info about a specific Datastream
+      operationId: getDatastream
+      tags:
+        - Datastreams
+      parameters:
+        - $ref: '#/components/parameters/numId'
+        - $ref: '#/components/parameters/select'
+      responses:
+        '200':
+          description: OK. Successful request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Datastream'
+                
+  /MultiDatastreams:
+    get:
+      summary: List or search for MultiDatastreams
+      operationId: listMultiDatastreams
+      tags:
+        - MultiDatastreams
+      parameters:
+        - $ref: '#/components/parameters/select'
+      responses:
+        '200':
+          description: A paged array of MultiDatastream resources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MultiDatastream'
+    post:
+      security:
+        - basicAuth: []
+      summary: Create a new MultiDatastream
+      operationId: createMultiDatastream
+      tags:
+        - MultiDatastreams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MultiDatastream'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+  '/MultiDatastreams({numId})':
+    get:
+      summary: Get info about a specific MultiDatastream
+      operationId: getMultiDatastream
+      tags:
+        - MultiDatastreams
+      parameters:
+        - $ref: '#/components/parameters/numId'
+        - $ref: '#/components/parameters/select'
+      responses:
+        '200':
+          description: OK. Successful request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultiDatastream'
+                
+  /FeaturesOfInterest:
+    get:
+      summary: List or search for FeaturesOfInterest
+      operationId: listFeaturesOfInterest
+      tags:
+        - FeaturesOfInterest
+      parameters:
+        - $ref: '#/components/parameters/select'
+      responses:
+        '200':
+          description: A paged array of FeatureOfInterest resources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeatureOfInterest'
+    post:
+      security:
+        - basicAuth: []
+      summary: Create a new FeatureOfInterest
+      operationId: createFeatureOfInterest
+      tags:
+        - FeaturesOfInterest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeatureOfInterest'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+  '/FeatureOfInterests({numId})':
+    get:
+      summary: Get info about a specific FeatureOfInterest
+      operationId: getFeatureOfInterest
+      tags:
+        - FeaturesOfInterest
+      parameters:
+        - $ref: '#/components/parameters/numId'
+        - $ref: '#/components/parameters/select'
+      responses:
+        '200':
+          description: OK. Successful request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureOfInterest'
+                
+  /ObservedProperties:
+    get:
+      summary: List or search for ObservedProperties
+      operationId: listObservedProperties
+      tags:
+        - ObservedProperties
+      parameters:
+        - $ref: '#/components/parameters/select'
+      responses:
+        '200':
+          description: A paged array of ObservedProperty resources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ObservedProperty'
+    post:
+      security:
+        - basicAuth: []
+      summary: Create a new ObservedProperty
+      operationId: createObservedProperty
+      tags:
+        - ObservedProperties
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObservedProperty'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+  '/ObservedProperties({numId})':
+    get:
+      summary: Get info about a specific ObservedProperty
+      operationId: getObservedProperty
+      tags:
+        - ObservedProperties
+      parameters:
+        - $ref: '#/components/parameters/numId'
+        - $ref: '#/components/parameters/select'
+      responses:
+        '200':
+          description: OK. Successful request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservedProperty'
+                
+  /Observations:
+    get:
+      summary: List or search for Observations
+      operationId: listObservations
+      tags:
+        - Observations
+      parameters:
+        - $ref: '#/components/parameters/select'
+      responses:
+        '200':
+          description: A paged array of Observation resources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Observation'
+    post:
+      security:
+        - basicAuth: []
+      summary: Create a new Observation
+      operationId: createObservation
+      tags:
+        - Observations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Observation'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+  '/Observations({complexId})':
+    get:
+      summary: Get info about a specific Observation
+      operationId: getObservation
+      tags:
+        - Observations
+      parameters:
+        - $ref: '#/components/parameters/complexId'
+        - $ref: '#/components/parameters/select'
+      responses:
+        '200':
+          description: OK. Successful request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Observation'
+                
           
 components:
   securitySchemes:
@@ -261,6 +541,15 @@ components:
               example:
                 type: Point
                 coordinates: [43.6047, 1.4442]
+          
+    HistoricalLocation:
+      description: HistoricalLocation Entity
+      allOf:
+        - $ref: '#/components/schemas/BaseResourceInfo'
+        - type: object
+          properties:
+            time:
+              $ref: '#/components/schemas/DateTime'
               
     Sensor:
       description: Sensor Entity
@@ -276,6 +565,102 @@ components:
               description: URL of sensor description
               type: string
               example: 'http://mydomain.net/mydoc'
+              
+    Datastream:
+      description: Datastream Entity
+      allOf:
+        - $ref: '#/components/schemas/BaseResourceInfo'
+        - type: object
+          properties:
+            observationType:
+              type: string
+              enum: [
+                'http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement',
+                'http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_CountObservation',
+                'http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_CategoryObservation',
+                'http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_TruthObservation']
+              example: 'http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement'
+            unitOfMeasurement:
+              type: object
+              properties:
+                name:
+                  type: string
+                symbol:
+                  type: string
+                definition:
+                  type: string
+            ObservedProperty:
+              type: object
+              properties:
+                '@iot.id':
+                  type: integer
+            Sensor:
+              type: object
+              properties:
+                '@iot.id':
+                  type: integer
+            Thing:
+              type: object
+              properties:
+                '@iot.id':
+                  type: integer
+              
+    MultiDatastream:
+      description: MultiDatastream Entity
+      allOf:
+        - $ref: '#/components/schemas/BaseResourceInfo'
+        - type: object
+          properties:
+            encodingType:
+              description: MIME type of linked document
+              type: string
+              example: 'application/pdf'
+            metadata:
+              description: URL of sensor description
+              type: string
+              example: 'http://mydomain.net/mydoc'
+              
+    ObservedProperty:
+      description: ObservedProperty Entity
+      allOf:
+        - $ref: '#/components/schemas/BaseResourceInfo'
+        - type: object
+          properties:
+            definition:
+              description: URI of property definition
+              type: string
+              
+    Observation:
+      description: Observation Entity
+      type: object
+      required:
+        - phenomenonTime
+        - resultTime
+        - result
+      properties:
+        phenomenonTime:
+          $ref: '#/components/schemas/DateTime'
+        resultTime:
+          $ref: '#/components/schemas/DateTime'
+        result:
+          type: object
+              
+    FeatureOfInterest:
+      description: FeatureOfInterest Entity
+      allOf:
+        - $ref: '#/components/schemas/BaseResourceInfo'
+        - type: object
+          properties:
+            encodingType:
+              description: Encoding must be GeoJSON
+              type: string
+              enum: ['application/vnd.geo+json']
+            feature:
+              type: object
+              example:
+                type: Point
+                coordinates: [43.6047, 1.4442]
+              
     DateTime:
       description: ISO 8601 time stamp
       type: string
@@ -283,24 +668,17 @@ components:
         ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z)?$
         
   parameters:
-    thingId:
-      name: thingId
+    numId:
+      name: numId
       in: path
-      description: The unique numerical ID of a Thing resource
+      description: The unique numerical ID of a resource
       required: true
       schema:
-        type: string
-    sensorId:
-      name: sensorId
+        type: integer
+    complexId:
+      name: complexId
       in: path
-      description: The unique numerical ID of a Sensor resource
-      required: true
-      schema:
-        type: string
-    locationId:
-      name: locationId
-      in: path
-      description: The unique numerical ID of a Location resource
+      description: The composite ID of a resource
       required: true
       schema:
         type: string
