@@ -6564,7 +6564,8 @@ OSH.UI.CesiumView = OSH.UI.View.extend({
                 label: styler.label,
                 timeStamp: timeStamp,
                 selected: ((typeof (options.selected) !== "undefined") ? options.selected : false),
-                description: styler.description // TODO: Test and integrate into Source
+                description: styler.description,    // TODO: Test and integrate into Source
+                circle: styler.circle               // TODO: Test and integrate into Source
             });
 
             this.stylerToObj[styler.getId()] = markerId;

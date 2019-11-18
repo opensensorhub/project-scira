@@ -8,7 +8,8 @@ let DEPLOYHOSTNAME = "scira.georobotix.io";
 let HOSTNAME_TEST = "192.168.1.134";
 let PORTNUM = 8181;
 let START_TIME = "now";
-let END_TIME = "2100-01-01T20:18:05.451Z";
+// let END_TIME = "2100-01-01T20:18:05.451Z";
+let END_TIME = '2020-05-01';
 let SYNC = false;
 let TIMEOUT = 4000;
 let REPLAY_FACTOR = 999999;
@@ -105,7 +106,28 @@ function init() {
 
     // Selection Change events
     cesiumView.viewer._selectedEntityChanged.addEventListener(CesiumSelectionChgListener);
-    console.log(cesiumView.viewer);
+    // console.log(cesiumView.viewer);
+
+    var lat = 34.666020;
+    var lon = -86.780215;
+    var halfsize = 0.00026;
+    var aratio = 1.2;
+    var east = lon + halfsize * aratio;
+    var west = lon - halfsize * aratio;
+    var north = lat + halfsize;
+    var south = lat - halfsize;
+    var rectangle = Cesium.Rectangle.fromDegrees(west, south, east, north);
+
+    var vbc = cesiumView.viewer.entities.add({
+        name: "Open Sensor Hub",
+        rectangle: {
+            coordinates: rectangle,
+            material: new Cesium.ImageMaterialProperty({
+                image: './models/oshHQ-rot.png',
+                transparent: true
+            })
+        }
+    });
 
     // HACK: Couldn't directly access Cesium.Viewer to set map baselayer
     // TODO: explore reasons why and other options
@@ -1391,9 +1413,9 @@ let Sensors = {
                         // TODO: fix once distance is added to the beacon location data vector
                         let closest = 'beacon_1';
                         let nearDist = Math.min(...[rec.beacon_1.dist, rec.beacon_2.distance, rec.beacon_3.dist]);
-                        if(nearDist === rec.beacon_1.distance) closest = "beacon_1";
-                        else if(nearDist === rec.beacon_2.distance) closest = "beacon_2";
-                        else if(nearDist === rec.beacon_3.distance) closest = "beacon_3";
+                        if (nearDist === rec.beacon_1.distance) closest = "beacon_1";
+                        else if (nearDist === rec.beacon_2.distance) closest = "beacon_2";
+                        else if (nearDist === rec.beacon_3.distance) closest = "beacon_3";
                         console.log('Closest Beacon: ' + closest);
                         return {
                             x: rec[closest].lon,
@@ -1456,8 +1478,8 @@ let Sensors = {
             icon: './vendor/images/tree/blue_key.png',
             label: entityName
         });
-        let nearestLocStyler =  new OSH.UI.Styler.PointMarker({
-            locationFunc:{
+        let nearestLocStyler = new OSH.UI.Styler.PointMarker({
+            locationFunc: {
                 dataSourceIds: [nearestBeaconData.getId()],
                 handler: function (rec) {
                     console.log(rec);
@@ -2027,6 +2049,163 @@ let Sensors = {
 
         //moved entity add to tree and DRC to FOI method
 
+        return entity;
+    },
+    addCamSource(entityId, entityName, offeringID, options) {
+        let now = Date.now();
+        let dRecOptions = {
+            startTime: new Date(now - HISTORY_DEPTH_MILLIS).toISOString(),
+            endTime: new Date(now).toISOString(),
+            connect: true,
+            replaySpeed: 1
+        };
+
+        // TODO: point these to a different endpoint
+        let locData = new OSH.DataReceiver.JSON('Location', {
+            protocol: WEBSOCKET_PROTOCOL,
+            service: SOS,
+            endpointUrl: SCIRA_SOS_ENDPT,
+            offeringID: offeringID,
+            observedProperty: 'http://sensorml.com/ont/swe/property/Location',
+            startTime: 'now',
+            // endTime: new Date(now).toISOString(),
+            endTime: '2020-01-01',
+            replaySpeed: 1,
+            syncMasterTime: SYNC,
+            bufferingTime: 100,
+            timeOut: 4000,
+            connect: false
+        });
+
+        let orientation = new OSH.DataReceiver.OrientationQuaternion('Orientation', {
+            protocol: WEBSOCKET_PROTOCOL,
+            service: SOS,
+            endpointUrl: SCIRA_SOS_ENDPT,
+            offeringID: offeringID,
+            observedProperty: 'http://sensorml.com/ont/swe/property/OrientationQuaternion',
+            startTime: 'now',
+            endTime: '2020-01-01',
+            replaySpeed: 1,
+            syncMasterTime: SYNC,
+            bufferingTime: 100,
+            timeOut: 4000,
+            connect: false
+        });
+
+        let video;
+
+        if (options.hasOwnProperty(videoType)) {
+            if (options === 'h264') {
+                video = new OSH.DataReceiver.VideoH264("Video", {
+                    protocol: WEBSOCKET_PROTOCOL,
+                    service: SOS,
+                    endpointUrl: SCIRA_SOS_ENDPT,
+                    offeringID: offeringID,
+                    observedProperty: "http://sensorml.com/ont/swe/property/VideoFrame",
+                    startTime: 'now',
+                    endTime: END_TIME,
+                    replaySpeed: "1",
+                    timeShift: 0,
+                    syncMasterTime: SYNC,
+                    bufferingTime: 0,
+                    timeOut: 4000,
+                    connect: false
+                });
+            } else if (options === 'mp4') {
+                video = new OSH.DataReceiver.VideoMp4("Video", {
+                    protocol: WEBSOCKET_PROTOCOL,
+                    service: SOS,
+                    endpointUrl: SCIRA_SOS_ENDPT,
+                    offeringID: offeringID,
+                    observedProperty: "http://sensorml.com/ont/swe/property/VideoFrame",
+                    startTime: 'now',
+                    endTime: END_TIME,
+                    replaySpeed: "1",
+                    timeShift: 0,
+                    syncMasterTime: SYNC,
+                    bufferingTime: 0,
+                    timeOut: 4000,
+                    connect: false
+                });
+            } else {
+                video = new OSH.DataReceiver.VideoMjpeg("Video", {
+                    protocol: WEBSOCKET_PROTOCOL,
+                    service: SOS,
+                    endpointUrl: SCIRA_SOS_ENDPT,
+                    offeringID: offeringID,
+                    observedProperty: "http://sensorml.com/ont/swe/property/VideoFrame",
+                    startTime: 'now',
+                    endTime: END_TIME,
+                    replaySpeed: "1",
+                    timeShift: 0,
+                    syncMasterTime: SYNC,
+                    bufferingTime: 0,
+                    timeOut: 4000,
+                    connect: false
+                });
+            }
+        }
+
+        let entity = {
+            id: entityId,
+            name: entityName,
+            dataSources: [locData, orientation, video]
+        };
+        dataReceiverController.addEntity(entity);
+        let ctxtDS = {
+            locData: locData,
+            orientation: orientation,
+            video: video
+        };
+        let contextMenus = Context.createCamContextMenu(entity, {}, ctxtDS);
+        entity.contextMenus = contextMenus;
+
+        treeItems.push({
+            entity: entity,
+            entityId: entity.id,
+            path: 'Cameras',
+            treeIcon: './images/cameralook.png',
+            contextMenuId: contextMenus.stack.id
+        });
+
+        let styler = new OSH.UI.Styler.PointMarker({
+            location: {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            locationFunc: {
+                dataSourceIds: [locData.getId()],
+                handler: function (rec) {
+                    // console.log(rec);
+                    return {
+                        x: rec.location.lon,
+                        y: rec.location.lat,
+                        // z: rec.location.alt
+                        z: 0
+                    };
+                }
+            },
+            orientationFunc: {
+                dataSourceIds: [orientation.getId()],
+                handler: function (rec) {
+                    // console.log('Heading: ', rec.heading);
+                    return {heading: -rec.heading + 180};
+                }
+            },
+            icon: './images/cameralook.png',
+            label: entityName
+        });
+        entity.locStyler = styler;
+        console.log(mapView);
+        mapView.addViewItem({
+            name: entity.name,
+            entityId: entity.id,
+            styler: styler,
+            contextMenuId: contextMenus.circle.id
+        });
+        entity.sensorType = 'Android';
+        // locStylerToEntities[entity.locStyler.id] = entity;
         return entity;
     }
 
@@ -2990,9 +3169,9 @@ let Context = {
                 // options.clampToNearest = !options.clampToNearest;
                 let nearestDS = dataSources.nearest;
                 console.log(nearestDS);
-                if(nearestDS.connected === false){
+                if (nearestDS.connected === false) {
                     nearestDS.connect();
-                }else{
+                } else {
                     nearestDS.disconnect();
                 }
                 for (let csEntity of cesiumView.viewer.entities._entities._array) {
@@ -3468,6 +3647,126 @@ let Context = {
         }
 
 
+    },
+    createCamContextMenu(parentEntity, entityIds, dataSources){
+        let menuItems = [];
+        let chartMap = {
+            video: {},
+            marker: {},
+        };
+
+        let video = {
+            name: 'Video Feed',
+            viewId: entityIds.videoData,
+            css: 'fa fa-video-camera',
+            clickOverride: connectVideo
+        };
+        let locationIcon = {
+            name: 'Show Map Icon',
+            css: 'fa fa-map-marker',
+            clickOverride: pointMarkerConnector,
+            locationDatasource: dataSources.locData
+        };
+        let locationIconHide = {
+            name: 'Hide Map Icon',
+            css: 'fa fa-map-marker',
+            clickOverride: pointMarkerDisconnector,
+            locationDatasource: dataSources.locData
+        };
+        menuItems.push(video, locationIcon, locationIconHide);
+        let circContextMenu = new OSH.UI.ContextMenu.CircularMenu({
+            id: 'menu-' + OSH.Utils.randomUUID(),
+            groupId: '',
+            items: menuItems
+        });
+        let stackCtxtMenu = new OSH.UI.ContextMenu.StackMenu({
+            id: 'menu-' + OSH.Utils.randomUUID(),
+            groupId: '',
+            items: menuItems
+        });
+        // console.log(stackCtxtMenu);
+        return {
+            circle: circContextMenu,
+            stack: stackCtxtMenu
+        };
+
+        function connectVideo() {
+            console.debug('Show Video for:', parentEntity);
+            dialogAndDSController('video', dataSources.video);
+        }
+
+        function pointMarkerConnector(event) {
+            console.debug('Show Camera sensor:', parentEntity);
+            let locDataSource = dataSources.locData;
+            let hdgDataSource = dataSources.orientation;
+            if (locDataSource.connected === false) {
+                locDataSource.connect();
+                hdgDataSource.connect();
+            }
+
+            // Use Portion of Top Level Show Function Here
+            for (let csEntity of cesiumView.viewer.entities._entities._array) {
+                if (csEntity._dsid === cesiumView.stylerToObj[parentEntity.locStyler.id]) {
+                    csEntity.show = true;
+                    break;
+                }
+            }
+
+            // HACK to zoom to vehicle entity
+            let prevSelected = cesiumView.viewer.selectedEntity;
+            let zoomToSelected = function () {
+                let selected = cesiumView.viewer.selectedEntity;
+                if (typeof (selected) !== "undefined" && selected !== prevSelected) {
+                    cesiumView.viewer.zoomTo(cesiumView.viewer.selectedEntity,
+                        new Cesium.HeadingPitchRange(0.0, -90, 3000));
+                } else {
+                    setTimeout(zoomToSelected, 100);
+                }
+            };
+            setTimeout(zoomToSelected, 100);
+        }
+
+        function pointMarkerDisconnector(event) {
+            let locDataSource = dataSources.locData;
+            let hdgDataSource = dataSources.orientation;
+            if (locDataSource.connected === true) {
+                locDataSource.disconnect();
+                hdgDataSource.disconnect();
+            }
+
+            for (let csEntity of cesiumView.viewer.entities._entities._array) {
+                if (csEntity._dsid === cesiumView.stylerToObj[parentEntity.locStyler.id]) {
+                    csEntity.show = false;
+                    break;
+                }
+            }
+        }
+
+        function dialogAndDSController(callerType, dataSource) {
+            let videoDialog;
+
+            // TODO: change to a different container if necessary
+            if (callerType === 'video') {
+                if (!chartMap.video.hasOwnProperty('dialog')) {
+                    videoDialog = UI.createMultiDialog('android-video', [video], parentEntity.name + ' Video', true);
+                    chartMap.video.dialog = videoDialog;
+                    let videoView = new OSH.UI.MjpegView(videoDialog.popContentDiv.id, {
+                        dataSourceId: [dataSources.video.getId()],
+                        entityId: parentEntity.id,
+                        css: "video",
+                        cssSelected: "video-selected",
+                        width: 360,
+                        height: 300
+                    });
+                    chartMap.video.view = videoView;
+                }
+                let dialogElem = document.getElementById(chartMap.video.dialog.id);
+                console.log(dialogElem);
+                dialogElem.style.visibility = 'visible';
+                dialogElem.style.display = 'block';
+            }
+            dataSource.connect();
+        }
     }
 };
 
