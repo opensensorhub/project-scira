@@ -5,7 +5,7 @@
 // Config Wide Parameters
 let HOSTNAME = "localhost";
 let DEPLOYHOSTNAME = "scira.georobotix.io";
-let HOSTNAME_TEST = "192.168.1.134";
+let HOSTNAME_TEST = "192.168.1.189:8282";
 let PORTNUM = 8181;
 let START_TIME = "now";
 // let END_TIME = "2100-01-01T20:18:05.451Z";
@@ -21,9 +21,10 @@ let HISTORY_DEPTH_MILLIS = 3 * 24 * 3600 * 1000;
 
 let SOS_ENDPOINT = HOSTNAME + ":" + PORTNUM + "/sensorhub/sos";
 let SCIRA_SOS_ENDPT = DEPLOYHOSTNAME + ':' + PORTNUM + "/sensorhub/sos";
+let SCIRA_SPS_ENDPT = DEPLOYHOSTNAME + ':' + PORTNUM + "/sensorhub/sps";
 let TEST_SOS_ENDPOINT = HOSTNAME_TEST + "/sensorhub/sos";
+let TEST_SPS_ENDPOINT = HOSTNAME_TEST + "/sensorhub/sps";
 
-let SPS_ENDPOINT = HOSTNAME + ":" + PORTNUM + "/sensorhub/sps";
 let cesiumView;
 let treeItems = [];
 let menuItems = [];
@@ -179,6 +180,9 @@ function init() {
     // MarkerLayers.mesonetHide();
     Automation.addAndroidDevices();
     MarkerLayers.androidHide();
+
+    // Misc Cameras
+    Sensors.addCamSource('Dahua-Mini', 'Dahua Mini PTZ', 'urn:dahua:cam:1G0215CGAK00046', {spsID: 'urn:dahua:cam:1G0215CGAK00046-sps', videoType:'h264'});
 
     // UAV
     // Sensors.addUAV('Solo-1', 'Solo Drone 1', 'urn:osh:sensor:mavlink:solo:S115A58000000-sos',
@@ -2060,11 +2064,15 @@ let Sensors = {
             replaySpeed: 1
         };
 
+        // TODO: change when for demo
+        let sosEP = TEST_SOS_ENDPOINT;
+        let spsEP = TEST_SPS_ENDPOINT;
+
         // TODO: point these to a different endpoint
         let locData = new OSH.DataReceiver.JSON('Location', {
             protocol: WEBSOCKET_PROTOCOL,
             service: SOS,
-            endpointUrl: SCIRA_SOS_ENDPT,
+            endpointUrl: sosEP,
             offeringID: offeringID,
             observedProperty: 'http://sensorml.com/ont/swe/property/Location',
             startTime: 'now',
@@ -2077,10 +2085,10 @@ let Sensors = {
             connect: false
         });
 
-        let orientation = new OSH.DataReceiver.OrientationQuaternion('Orientation', {
+        let orientation = new OSH.DataReceiver.EulerOrientation('Orientation', {
             protocol: WEBSOCKET_PROTOCOL,
             service: SOS,
-            endpointUrl: SCIRA_SOS_ENDPT,
+            endpointUrl: sosEP,
             offeringID: offeringID,
             observedProperty: 'http://sensorml.com/ont/swe/property/OrientationQuaternion',
             startTime: 'now',
@@ -2094,28 +2102,28 @@ let Sensors = {
 
         let video;
 
-        if (options.hasOwnProperty(videoType)) {
-            if (options === 'h264') {
+        if (options.hasOwnProperty('videoType')) {
+            if (options.videoType === 'h264') {
                 video = new OSH.DataReceiver.VideoH264("Video", {
                     protocol: WEBSOCKET_PROTOCOL,
                     service: SOS,
-                    endpointUrl: SCIRA_SOS_ENDPT,
+                    endpointUrl: sosEP,
                     offeringID: offeringID,
                     observedProperty: "http://sensorml.com/ont/swe/property/VideoFrame",
                     startTime: 'now',
                     endTime: END_TIME,
-                    replaySpeed: "1",
+                    replaySpeed: 1,
                     timeShift: 0,
                     syncMasterTime: SYNC,
                     bufferingTime: 0,
-                    timeOut: 4000,
+                    // timeOut: 4000,
                     connect: false
                 });
-            } else if (options === 'mp4') {
+            } else if (options.videoType === 'mp4') {
                 video = new OSH.DataReceiver.VideoMp4("Video", {
                     protocol: WEBSOCKET_PROTOCOL,
                     service: SOS,
-                    endpointUrl: SCIRA_SOS_ENDPT,
+                    endpointUrl: sosEP,
                     offeringID: offeringID,
                     observedProperty: "http://sensorml.com/ont/swe/property/VideoFrame",
                     startTime: 'now',
@@ -2131,7 +2139,7 @@ let Sensors = {
                 video = new OSH.DataReceiver.VideoMjpeg("Video", {
                     protocol: WEBSOCKET_PROTOCOL,
                     service: SOS,
-                    endpointUrl: SCIRA_SOS_ENDPT,
+                    endpointUrl: sosEP,
                     offeringID: offeringID,
                     observedProperty: "http://sensorml.com/ont/swe/property/VideoFrame",
                     startTime: 'now',
@@ -2146,6 +2154,17 @@ let Sensors = {
             }
         }
 
+        let ptzTasking;
+        if(options.hasOwnProperty('spsID')){
+            ptzTasking = new OSH.DataSender.PtzTasking("video-tasking",{
+                protocol: "http",
+                service: "SPS",
+                version: "2.0",
+                endpointUrl: spsEP,
+                offeringID: options.spsID
+            });
+        }
+
         let entity = {
             id: entityId,
             name: entityName,
@@ -2157,7 +2176,7 @@ let Sensors = {
             orientation: orientation,
             video: video
         };
-        let contextMenus = Context.createCamContextMenu(entity, {}, ctxtDS);
+        let contextMenus = Context.createCamContextMenu(entity, {}, ctxtDS, options.videoType);
         entity.contextMenus = contextMenus;
 
         treeItems.push({
@@ -2197,8 +2216,8 @@ let Sensors = {
             label: entityName
         });
         entity.locStyler = styler;
-        console.log(mapView);
-        mapView.addViewItem({
+        console.log(cesiumView);
+        cesiumView.addViewItem({
             name: entity.name,
             entityId: entity.id,
             styler: styler,
@@ -3648,7 +3667,8 @@ let Context = {
 
 
     },
-    createCamContextMenu(parentEntity, entityIds, dataSources){
+    createCamContextMenu(parentEntity, entityIds, dataSources, videoType){
+        console.log(dataSources);
         let menuItems = [];
         let chartMap = {
             video: {},
@@ -3747,17 +3767,42 @@ let Context = {
 
             // TODO: change to a different container if necessary
             if (callerType === 'video') {
+                console.log(dataSources.video);
                 if (!chartMap.video.hasOwnProperty('dialog')) {
-                    videoDialog = UI.createMultiDialog('android-video', [video], parentEntity.name + ' Video', true);
+                    // videoDialog = UI.createMultiDialog('android-video', [video], parentEntity.name + ' Video', true);
+                    videoDialog = new OSH.UI.MultiDialogView('android-video', {
+                        draggable: true,
+                        css: "video-dialog",
+                        name: parentEntity.name + ' Video',
+                        show:true,
+                        dockable: false,
+                        closeable: true,
+                        keepRatio:false,
+                        connectionIds : [dataSources.video.getId()]
+                    });
                     chartMap.video.dialog = videoDialog;
-                    let videoView = new OSH.UI.MjpegView(videoDialog.popContentDiv.id, {
+                    let videoView;
+                    /*let videoView = new OSH.UI.MjpegView(videoDialog.popContentDiv.id, {
                         dataSourceId: [dataSources.video.getId()],
                         entityId: parentEntity.id,
                         css: "video",
                         cssSelected: "video-selected",
                         width: 360,
                         height: 300
-                    });
+                    });*/
+                    if(videoType === 'h264'){
+                        console.log('Creating h264 view');
+                        videoView = new OSH.UI.FFMPEGView(videoDialog.popContentDiv.id, {
+                            dataSourceId: [dataSources.video.getId()],
+                            css: "video",
+                            cssSelected: "video-selected",
+                            name: parentEntity.name,
+                            // useWorker:useFFmpegWorkers,
+                            useWorker:true,
+                            width:800,
+                            height:600
+                        });
+                    }
                     chartMap.video.view = videoView;
                 }
                 let dialogElem = document.getElementById(chartMap.video.dialog.id);
