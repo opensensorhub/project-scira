@@ -182,7 +182,14 @@ function init() {
     MarkerLayers.androidHide();
 
     // Misc Cameras
-    Sensors.addCamSource('Dahua-Mini', 'Dahua Mini PTZ', 'urn:dahua:cam:1G0215CGAK00046', {spsID: 'urn:dahua:cam:1G0215CGAK00046-sps', videoType:'h264'});
+    Sensors.addCamSource('Dahua-Mini', 'Dahua Mini PTZ', 'urn:dahua:cam:1G0215CGAK00046', {
+        spsID: 'urn:dahua:cam:1G0215CGAK00046',
+        videoType: 'h264'
+    });
+    Sensors.addCamSource('Axis-Cam', 'Axis PTZ', 'urn:axis:cam:00408CA0FF1C', {
+        spsID: 'urn:axis:cam:00408CA0FF1C',
+        videoType: 'mjpeg'
+    });
 
     // UAV
     // Sensors.addUAV('Solo-1', 'Solo Drone 1', 'urn:osh:sensor:mavlink:solo:S115A58000000-sos',
@@ -2136,6 +2143,7 @@ let Sensors = {
                     connect: false
                 });
             } else {
+                console.log('Video is MJPEG');
                 video = new OSH.DataReceiver.VideoMjpeg("Video", {
                     protocol: WEBSOCKET_PROTOCOL,
                     service: SOS,
@@ -2144,7 +2152,7 @@ let Sensors = {
                     observedProperty: "http://sensorml.com/ont/swe/property/VideoFrame",
                     startTime: 'now',
                     endTime: END_TIME,
-                    replaySpeed: "1",
+                    replaySpeed: 1,
                     timeShift: 0,
                     syncMasterTime: SYNC,
                     bufferingTime: 0,
@@ -2155,8 +2163,8 @@ let Sensors = {
         }
 
         let ptzTasking;
-        if(options.hasOwnProperty('spsID')){
-            ptzTasking = new OSH.DataSender.PtzTasking("video-tasking",{
+        if (options.hasOwnProperty('spsID')) {
+            ptzTasking = new OSH.DataSender.PtzTasking("video-tasking", {
                 protocol: "http",
                 service: "SPS",
                 version: "2.0",
@@ -3667,7 +3675,7 @@ let Context = {
 
 
     },
-    createCamContextMenu(parentEntity, entityIds, dataSources, videoType){
+    createCamContextMenu(parentEntity, entityIds, dataSources, videoType) {
         console.log(dataSources);
         let menuItems = [];
         let chartMap = {
@@ -3774,11 +3782,11 @@ let Context = {
                         draggable: true,
                         css: "video-dialog",
                         name: parentEntity.name + ' Video',
-                        show:true,
+                        show: true,
                         dockable: false,
                         closeable: true,
-                        keepRatio:false,
-                        connectionIds : [dataSources.video.getId()]
+                        keepRatio: false,
+                        connectionIds: [dataSources.video.getId()]
                     });
                     chartMap.video.dialog = videoDialog;
                     let videoView;
@@ -3790,7 +3798,7 @@ let Context = {
                         width: 360,
                         height: 300
                     });*/
-                    if(videoType === 'h264'){
+                    if (videoType === 'h264') {
                         console.log('Creating h264 view');
                         videoView = new OSH.UI.FFMPEGView(videoDialog.popContentDiv.id, {
                             dataSourceId: [dataSources.video.getId()],
@@ -3798,9 +3806,28 @@ let Context = {
                             cssSelected: "video-selected",
                             name: parentEntity.name,
                             // useWorker:useFFmpegWorkers,
-                            useWorker:true,
-                            width:800,
-                            height:600
+                            useWorker: true,
+                            width: 800,
+                            height: 600
+                        });
+                    } else if (videoType === 'mjpeg' || typeof videoType === "undefined") {
+                        console.log('Creating mjpeg view');
+                        videoView = new OSH.UI.MjpegView(videoDialog.popContentDiv.id, {
+                            dataSourceId: [dataSources.video.getId()],
+                            entityId: parentEntity.id,
+                            css: "video",
+                            cssSelected: "video-selected",
+                            width: 704,
+                            height: 480
+                        });
+                    } else if(videoType === 'mp4'){
+                        videoView = new OSH.UI.Mp4View(videoDialog.popContentDiv.id,{
+                            dataSourceId: [dataSources.video.getId()],
+                            entityId: parentEntity.id,
+                            css: "video",
+                            cssSelected: "video-selected",
+                            width: 800,
+                            height: 600
                         });
                     }
                     chartMap.video.view = videoView;
