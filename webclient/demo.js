@@ -2186,7 +2186,8 @@ let Sensors = {
         let ctxtDS = {
             locData: locData,
             orientation: orientation,
-            video: video
+            video: video,
+            sps: ptzTasking
         };
         let contextMenus = Context.createCamContextMenu(entity, {}, ctxtDS, options.videoType);
         entity.contextMenus = contextMenus;
@@ -3842,6 +3843,16 @@ let Context = {
                             cssSelected: "video-selected",
                             width: 800,
                             height: 600
+                        });
+                    }
+                    if (typeof (dataSources.sps) !== "undefined") {
+                        taskingView = new OSH.UI.PtzTaskingView(videoDialog.popContentDiv.id, {
+                            dataSenderId: dataSources.sps.getId(),
+                            ptIncrement: 1,
+                            zIncrement: 0.05,
+                            // presets: dahuaPresets,
+                            // taskers: dahuaTaskers,
+                            panRotFactor: -1.0          // TODO: See that this value is correct, might need to be a parameter if we add a lot of other cameras
                         });
                     }
                     chartMap.video.view = videoView;
