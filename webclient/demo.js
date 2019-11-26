@@ -45,7 +45,7 @@ let circMenuItems = [
         viewId: 'viewId2',
         css: 'cmenu-test1'
     }];
-let customLayers = {orthos: {}, boundaries: {}, addressPoints: {}};
+let customLayers = { orthos: {}, boundaries: {}, addressPoints: {} };
 let locStylerToEntities = {};
 
 // Table Helpers
@@ -98,7 +98,7 @@ function init() {
     window.OSH.BASE_WORKER_URL = "js/workers";
 
 
-    cesiumView = new OSH.UI.CesiumView("main-container", [], {css: 'map-view-style'});
+    cesiumView = new OSH.UI.CesiumView("main-container", [], { css: 'map-view-style' });
     cesiumView.first = false;
     cesiumView.viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(-90.22, 38.624, 100000.0)
@@ -188,6 +188,9 @@ function init() {
     });
     Sensors.addCamSource('Axis-Cam', 'Axis PTZ', 'urn:axis:cam:00408CA0FF1C', {
         spsID: 'urn:axis:cam:00408CA0FF1C',
+        videoType: 'mjpeg'
+    });
+    Sensors.addCamSource('GeoCam-0102', 'GeoCam 0102', 'urn:osh:system:geocam:0102-sos', {
         videoType: 'mjpeg'
     });
 
@@ -411,16 +414,16 @@ function addUSGSStreamGageSensor(entityId, entityName, offeringID, mapView, opti
     //     discharge: dischargeChartDialog.id,
     //     height: streamGageChartDialog.id};
     let ctxtMenuEIds =
-        {
-            waterTemp: '',
-            discharge: '',
-            height: ''
-        };
+    {
+        waterTemp: '',
+        discharge: '',
+        height: ''
+    };
     let contextMenus = Context.createStreamGaugeContextMenu(entity, ctxtMenuEIds, {
-            temp: waterTempData,
-            discharge: dischargeData,
-            height: heightData
-        }
+        temp: waterTempData,
+        discharge: dischargeData,
+        height: heightData
+    }
     );
     entity.contextMenus = contextMenus;
 
@@ -647,7 +650,7 @@ function addSnowPlowAVLSensor(entityId, entityName, offeringID, mapView, options
             dataSourceIds: [trueHeading.getId()],
             handler: function (rec) {
                 //console.log(rec);
-                return {heading: -rec.heading};
+                return { heading: -rec.heading };
             }
         },
         //icon: './images/cameralook.png',
@@ -702,8 +705,8 @@ function addTrafficCamSensor(entityId, entityName, offeringID, mapView, options)
         video: ''
     };
     let contextMenus = Context.createTrafficCamContextMenu(entity, ctxtMenuEIds, {
-            video: videoData
-        }
+        video: videoData
+    }
     );
     entity.contextMenus = contextMenus;
 
@@ -721,7 +724,7 @@ function addTrafficCamSensor(entityId, entityName, offeringID, mapView, options)
             y: options.location.lat,
             z: options.location.alt
         },
-        orientation: {heading: options.location.orient},
+        orientation: { heading: options.location.orient },
         // icon: './images/light/SVG/trafficCam.svg',
         icon: './images/light/2x/trafficCam2x.png',
         label: entityName,
@@ -912,7 +915,7 @@ function createEntityTree(treeEntities) {
     // let treeInner = treeDiv.childNodes;
     // treeInner[0].classList.add('tree-inner');
     // console.log(treeInner[0]);
-    return {dialog: entityTreeDialog, view: entityTreeView};
+    return { dialog: entityTreeDialog, view: entityTreeView };
 }
 
 
@@ -1280,7 +1283,7 @@ let Sensors = {
                 dataSourceIds: [orientation.getId()],
                 handler: function (rec) {
                     // console.log('Heading: ', rec.heading);
-                    return {heading: -rec.heading + 180};
+                    return { heading: -rec.heading + 180 };
                 }
             },
             icon: './images/light/2x/android2x.png',
@@ -1388,7 +1391,7 @@ let Sensors = {
             distance: distData,
             nearest: nearestBeaconData
         };
-        let contextMenus = Context.createBLEContextMenu(entity, {}, ctxtDS, {clampToNearest: clampToNearest});
+        let contextMenus = Context.createBLEContextMenu(entity, {}, ctxtDS, { clampToNearest: clampToNearest });
         entity.contextMenus = contextMenus;
 
         treeItems.push({
@@ -1715,11 +1718,11 @@ let Sensors = {
             altitude: ''
         };
         let contextMenus = Context.createDroneContextMenu(entity, ctxtMenuIds, {
-                location: locationData,
-                altitude: locationData,
-                heading: attitudeData,
-                video: videoData
-            },
+            location: locationData,
+            altitude: locationData,
+            heading: attitudeData,
+            video: videoData
+        },
             {
                 video: {
                     dialog: videoDialog,
@@ -2154,7 +2157,8 @@ let Sensors = {
                     endTime: END_TIME,
                     replaySpeed: 1,
                     timeShift: 0,
-                    syncMasterTime: SYNC,
+                    // syncMasterTime: SYNC,
+                    syncMasterTime: false,
                     bufferingTime: 0,
                     timeOut: 4000,
                     connect: false
@@ -2217,7 +2221,7 @@ let Sensors = {
                 dataSourceIds: [orientation.getId()],
                 handler: function (rec) {
                     // console.log('Heading: ', rec.heading);
-                    return {heading: -rec.heading + 180};
+                    return { heading: -rec.heading + 180 };
                 }
             },
             icon: './images/cameralook.png',
@@ -2467,7 +2471,7 @@ let Automation = {
                     dataSourceIds: [locationDS.getId()],
                     handler: function (rec) {
                         //console.log(rec);
-                        return {heading: rec.heading + 180};
+                        return { heading: rec.heading + 180 };
                     }
                 },
                 icon: './images/light/2x/snowplow2x.png',
@@ -3812,6 +3816,16 @@ let Context = {
                         });
                     } else if (videoType === 'mjpeg' || typeof videoType === "undefined") {
                         console.log('Creating mjpeg view');
+                        videoDialog = new OSH.UI.DialogView('android-video', {
+                            draggable: true,
+                            css: "video-dialog",
+                            name: parentEntity.name + ' Video',
+                            show: true,
+                            dockable: false,
+                            closeable: true,
+                            keepRatio: false,
+                            connectionIds: [dataSources.video.getId()]
+                        })
                         videoView = new OSH.UI.MjpegView(videoDialog.popContentDiv.id, {
                             dataSourceId: [dataSources.video.getId()],
                             entityId: parentEntity.id,
@@ -3820,8 +3834,8 @@ let Context = {
                             width: 704,
                             height: 480
                         });
-                    } else if(videoType === 'mp4'){
-                        videoView = new OSH.UI.Mp4View(videoDialog.popContentDiv.id,{
+                    } else if (videoType === 'mp4') {
+                        videoView = new OSH.UI.Mp4View(videoDialog.popContentDiv.id, {
                             dataSourceId: [dataSources.video.getId()],
                             entityId: parentEntity.id,
                             css: "video",
@@ -3998,7 +4012,7 @@ let MarkerLayers = {
                     let temp;
                     let depth;
 
-                    let newData = {id: result.station, name: 'NOAA Buoy Station ' + result.station};
+                    let newData = { id: result.station, name: 'NOAA Buoy Station ' + result.station };
                     if (result.depth !== 'NaN' && result.depth !== undefined) {
                         depth = Number.parseFloat(result.depth).toFixed(4);
                         newData.depth = depth;
@@ -4203,7 +4217,7 @@ let MarkerLayers = {
             if (evt.data.hasOwnProperty('mesonet')) {
                 console.log(evt.data);
                 for (let mnData of evt.data.mesonet) {
-                    let newData = {id: mnData.stationId, name: 'Mesonet Station: ' + mnData.stationName};
+                    let newData = { id: mnData.stationId, name: 'Mesonet Station: ' + mnData.stationName };
                     for (let col in mesonetColumnsID2Name) {
                         newData[col] = typeof (mnData[col]) === 'number' ? Number.parseFloat(mnData[col]).toFixed(4) : mnData[col];
                     }
@@ -4319,10 +4333,10 @@ let Tables = {
             // paginationSize: 5,
             // paginationAddRow: 'table',
             columns: [ //Define Table Columns
-                {title: 'Name', field: 'name'},
-                {title: "Water Temp", field: "wtemp", align: 'right'},
-                {title: "Discharge", field: "dis", align: 'right'},
-                {title: "Gage Height", field: "gh", align: 'right'},
+                { title: 'Name', field: 'name' },
+                { title: "Water Temp", field: "wtemp", align: 'right' },
+                { title: "Discharge", field: "dis", align: 'right' },
+                { title: "Gage Height", field: "gh", align: 'right' },
             ],
             rowClick: function (e, row) {
                 let name = row.getData().name;
@@ -4356,9 +4370,9 @@ let Tables = {
             // paginationSize: 5,
             // paginationAddRow: 'table',
             columns: [ //Define Table Columns
-                {title: 'Name', field: 'name'},
-                {title: "Water Temp", field: "temp", align: 'right'},
-                {title: "Buoy Depth", field: "depth", align: 'right'},
+                { title: 'Name', field: 'name' },
+                { title: "Water Temp", field: "temp", align: 'right' },
+                { title: "Buoy Depth", field: "depth", align: 'right' },
             ],
             rowClick: function (e, row) {
                 let name = row.getData().name;
@@ -4392,26 +4406,26 @@ let Tables = {
             // paginationSize: 5,
             // paginationAddRow: 'table',
             columns: [ //Define Table Columns
-                {title: 'Name', field: 'name'},
-                {title: "Temp 2m", field: "temperature2m", align: 'right'},
-                {title: "Temp 9m", field: "temperature9m", align: 'right'},
-                {title: "Relative Humidity", field: "relativeHumidity", align: 'right'},
-                {title: "Pressure", field: "pressure", align: 'right'},
-                {title: "Wind Speed", field: "windSpeed", align: 'right'},
-                {title: "Wind Direction", field: "windDirection", align: 'right'},
-                {title: "Wind Gust", field: "windSpeedGust", align: 'right'},
-                {title: "Precipitation - 6 hr", field: "precipitation6hr", align: 'right'},
-                {title: "Precipitation - 1 day", field: "precipitation1day", align: 'right'},
-                {title: "Precipitation - 2 day", field: "precipitation2day", align: 'right'},
-                {title: "Precipitation - 3 day", field: "precipitation3day", align: 'right'},
-                {title: "Precipitation - 7 day", field: "precipitation7day", align: 'right'},
-                {title: "Solar Radiation", field: "solarRadiation", align: 'right'},
-                {title: "Snow Depth", field: "snowDepth", align: 'right'},
-                {title: "Soil Moisture - 5cm", field: "soilMoisture5cm", align: 'right'},
-                {title: "Soil Moisture - 25cm", field: "soilMoisture25cm", align: 'right'},
-                {title: "Soil Moisture - 50cm", field: "soilMoisture50cm", align: 'right'},
-                {title: "Soil Temperature - 5cm", field: "soilTemp5cm", align: 'right'},
-                {title: "Soil Temperature - 50cm", field: "soilTemp50cm", align: 'right'},
+                { title: 'Name', field: 'name' },
+                { title: "Temp 2m", field: "temperature2m", align: 'right' },
+                { title: "Temp 9m", field: "temperature9m", align: 'right' },
+                { title: "Relative Humidity", field: "relativeHumidity", align: 'right' },
+                { title: "Pressure", field: "pressure", align: 'right' },
+                { title: "Wind Speed", field: "windSpeed", align: 'right' },
+                { title: "Wind Direction", field: "windDirection", align: 'right' },
+                { title: "Wind Gust", field: "windSpeedGust", align: 'right' },
+                { title: "Precipitation - 6 hr", field: "precipitation6hr", align: 'right' },
+                { title: "Precipitation - 1 day", field: "precipitation1day", align: 'right' },
+                { title: "Precipitation - 2 day", field: "precipitation2day", align: 'right' },
+                { title: "Precipitation - 3 day", field: "precipitation3day", align: 'right' },
+                { title: "Precipitation - 7 day", field: "precipitation7day", align: 'right' },
+                { title: "Solar Radiation", field: "solarRadiation", align: 'right' },
+                { title: "Snow Depth", field: "snowDepth", align: 'right' },
+                { title: "Soil Moisture - 5cm", field: "soilMoisture5cm", align: 'right' },
+                { title: "Soil Moisture - 25cm", field: "soilMoisture25cm", align: 'right' },
+                { title: "Soil Moisture - 50cm", field: "soilMoisture50cm", align: 'right' },
+                { title: "Soil Temperature - 5cm", field: "soilTemp5cm", align: 'right' },
+                { title: "Soil Temperature - 50cm", field: "soilTemp50cm", align: 'right' },
             ],
             rowClick: function (e, row) {
                 let name = row.getData().name;
@@ -4447,15 +4461,15 @@ let Tables = {
             // paginationAddRow: 'table',
             columns: [ //Define Table Columns
                 // {title: 'Name', field: 'name'},
-                {title: "VIN", field: "vin", align: 'center'},
-                {title: "Ignition", field: "ignition", align: 'center', formatter: 'tickCross'},
-                {title: "Fleet ID", field: "fleetId", align: 'center'},
-                {title: "Instant Speed", field: "instSpeed", align: 'right'},
-                {title: "Average Speed", field: "avgSpeed", align: 'right'},
-                {title: "Max Speed", field: "maxSpeed", align: 'right'},
-                {title: "Engine Hours", field: "engineHours", align: 'right'},
-                {title: "Total Gallons", field: "totalGallons", align: 'right'},
-                {title: "Odometer", field: "odometer", align: 'right'},
+                { title: "VIN", field: "vin", align: 'center' },
+                { title: "Ignition", field: "ignition", align: 'center', formatter: 'tickCross' },
+                { title: "Fleet ID", field: "fleetId", align: 'center' },
+                { title: "Instant Speed", field: "instSpeed", align: 'right' },
+                { title: "Average Speed", field: "avgSpeed", align: 'right' },
+                { title: "Max Speed", field: "maxSpeed", align: 'right' },
+                { title: "Engine Hours", field: "engineHours", align: 'right' },
+                { title: "Total Gallons", field: "totalGallons", align: 'right' },
+                { title: "Odometer", field: "odometer", align: 'right' },
             ],
             rowClick: function (e, row) { //trigger an alert message when the row is clicked
                 let vin = row.getData().vin;
@@ -4483,7 +4497,7 @@ let Tables = {
         return table;
     },
     createTableGroup(groupName, tables) {
-        return {"groupName": tables};
+        return { "groupName": tables };
     }
 };
 
@@ -4795,7 +4809,7 @@ OSH.UI.Styler.AreaMarker = OSH.UI.Styler.extend({
         this._super(properties);
         this.properties = properties;
         this.location = null;
-        this.orientation = {heading: 0};
+        this.orientation = { heading: 0 };
         this.icon = null;
         this.iconAnchor = [16, 16];
         this.label = null;
