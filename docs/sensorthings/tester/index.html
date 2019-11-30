@@ -1,0 +1,89 @@
+<!-- HTML for static distribution bundle build -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>SCIRA SensorThings Examples</title>
+    <link rel="stylesheet" type="text/css" href="./swagger-ui.css" >
+    <link rel="icon" href="https://opensensorhub.files.wordpress.com/2017/10/osh-logo-notext.png?w=161" sizes="192x192" />
+    <style>
+      html
+      {
+        box-sizing: border-box;
+        overflow: -moz-scrollbars-vertical;
+        overflow-y: scroll;
+      }
+
+      *,
+      *:before,
+      *:after
+      {
+        box-sizing: inherit;
+      }
+
+      body
+      {
+        margin:0;
+        background: #fafafa;
+      }
+
+      /* hide or restyle some elements */
+      .swagger-ui .topbar {
+        display: none;
+      }
+
+      .swagger-ui .info {
+        margin: 20px 0;
+      }
+
+      .swagger-ui .scheme-container {
+        padding: 10px;
+      }
+
+      .responses-inner > .responses-table {
+        display: none;
+      }
+
+      .responses-inner div.copy-paste {
+        display: none;
+      }
+
+      .responses-inner > div > h4 {
+        display: none;
+      }
+
+      .responses-inner > div > div > div > h4 {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="swagger-ui"></div>
+
+    <script src="./swagger-ui-bundle.js"> </script>
+    <script src="./swagger-ui-standalone-preset.js"> </script>
+    <script>
+    window.onload = function() {
+      // Begin Swagger UI call region
+      const ui = SwaggerUIBundle({
+        url: "../sensorthings.yaml",
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        defaultModelsExpandDepth: -1,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout"
+      })
+      // End Swagger UI call region
+
+      window.ui = ui
+    }
+  </script>
+  </body>
+</html>

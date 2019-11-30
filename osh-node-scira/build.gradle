@@ -8,7 +8,7 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
   
 allprojects {
-  version = '0.1'
+  version = '0.2'
 }
 
 subprojects {  
@@ -25,6 +25,8 @@ dependencies {
   compile project(':sensorhub-driver-fakeweather')
   compile project(':sensorhub-driver-usgswater')
   compile project(':sensorhub-storage-usgswater')
+  compile project(':sensorhub-driver-metar')
+  compile project(':sensorhub-driver-cradlepoint')
 }
 
 configurations {

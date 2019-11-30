@@ -90,6 +90,58 @@
     "name": "USGS Water Data Archive",
     "autoStart": true
   },
+  
+  {
+    "objClass": "org.sensorhub.impl.sensor.cradlepoint.CradlepointConfig",
+    "id": "7d081b29-aae7-4b4c-82fd-9dfa00c25888",
+    "name": "Cradlepoint Listener Servlet",
+    "moduleClass": "org.sensorhub.impl.sensor.cradlepoint.CradlepointSensor",
+    "autoStart": true,
+    "servletPath": "/cradlepoint"
+  },
+  {
+    "objClass": "org.sensorhub.impl.persistence.StreamStorageConfig",
+    "id": "8cc876e4-3bed-4347-8012-20227ac22ec6",
+    "name": "Cradlepoint Servlet Storage",
+    "moduleClass": "org.sensorhub.impl.persistence.GenericStreamStorage",
+    "enabled": true,
+    "dataSourceID": "7d081b29-aae7-4b4c-82fd-9dfa00c25888",
+    "storageConfig":    
+    {
+      "objClass": "org.sensorhub.impl.persistence.perst.BasicStorageConfig",
+      "moduleClass": "org.sensorhub.impl.persistence.perst.MultiEntityStorageImpl",
+      "memoryCacheSize": 1024,
+      "storagePath": "cradlepoint.dat"
+    }
+  }, 
+  
+  {
+    "objClass": "org.sensorhub.impl.sensor.station.metar.MetarConfig",
+    "id": "d136b6ea-3950-4691-bf56-c84ec7d89d72",
+    "name": "METAR Weather Station Network",
+    "moduleClass": "org.sensorhub.impl.sensor.station.metar.MetarSensor",
+    "enabled": true,
+    "sensorML": "metar.xml",
+    "metarStationMapPath" : "metarStations.csv",
+    "aviationWeatherUrl" : "https://aviationweather.gov/adds/dataserver_current/current/metars.cache.csv",
+    "stationIds": [ "KCPS", "KBLV", "KALN" ]
+  },
+  {
+    "objClass": "org.sensorhub.impl.persistence.StreamStorageConfig",
+    "id": "5cb05c9c-9e08-4fa1-8731-ff4ff948bdc1",
+    "name": "METAR Weather Data Storage",
+    "moduleClass": "org.sensorhub.impl.persistence.GenericStreamStorage",
+    "enabled": true,
+    "dataSourceID": "d136b6ea-3950-4691-bf56-c84ec7d89d72",
+    "storageConfig":    
+    {
+      "objClass": "org.sensorhub.impl.persistence.perst.BasicStorageConfig",
+      "moduleClass": "org.sensorhub.impl.persistence.perst.MultiEntityStorageImpl",
+      "memoryCacheSize": 1024,
+      "storagePath": "metar_obs.dat"
+    }
+  }, 
+  
   {
     "objClass": "org.sensorhub.impl.service.sos.SOSServiceConfig",
     "enableTransactional": true,
@@ -110,7 +162,40 @@
         "maxFois": 0,
         "offeringID": "urn:nys:usgs",
         "enabled": true
-      }
+      },
+      
+      {
+           "objClass": "org.sensorhub.impl.service.sos.SensorDataProviderConfig",
+           "enabled": true,
+           "name": "Cradlepoint",
+           "uri": "urn:scira:cradlepoint",
+           "sensorID": "7d081b29-aae7-4b4c-82fd-9dfa00c25888",
+           "liveDataTimeout": 3600.0,
+           "maxFois": 10
+       },
+       
+        {
+           "objClass": "org.sensorhub.impl.service.sos.SensorDataProviderConfig",
+           "enabled": true,
+           "name": "Metar Stations",
+           "description": "Live stream from weather stations of the METAR network",
+           "uri": "urn:mysos:metar01",
+           "sensorID": "d136b6ea-3950-4691-bf56-c84ec7d89d72",
+           "liveDataTimeout": 3600.0,
+           "maxFois": 10
+       },
+       {
+           "objClass": "org.sensorhub.impl.service.sos.SensorDataProviderConfig",
+           "enabled": true,
+           "name": "Metar Stations",
+           "description": "Weather stations from the METAR network",
+           "uri": "urn:mysos:metar02",
+           "sensorID": "d136b6ea-3950-4691-bf56-c84ec7d89d72",
+           "storageID": "5cb05c9c-9e08-4fa1-8731-ff4ff948bdc1",
+           "liveDataTimeout": 3600.0,
+           "maxFois": 10
+       }
+      
     ],
     "dataConsumers": [],
     "customFormats": [
@@ -169,7 +254,7 @@
   },
   {
     "objClass": "org.sensorhub.impl.security.BasicSecurityRealmConfig",
-    "users": [
+     "users": [
       {
         "objClass": "org.sensorhub.impl.security.BasicSecurityRealmConfig$UserConfig",
         "id": "admin",

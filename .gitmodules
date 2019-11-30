@@ -1,0 +1,6 @@
+[submodule "osh-node-scira/include/osh-core"]
+	path = osh-node-scira/include/osh-core
+	url = https://github.com/opensensorhub/osh-core.git
+[submodule "osh-node-scira/include/osh-addons"]
+	path = osh-node-scira/include/osh-addons
+	url = https://github.com/opensensorhub/osh-addons.git
