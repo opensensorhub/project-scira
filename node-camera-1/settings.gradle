@@ -1,5 +1,5 @@
 rootProject.name = 'node-camera-1'
-def includeDir = "$rootDir/include"
+def includeDir = "$rootDir/../osh-node-scira/include"
 
 // osh-core
 gradle.ext.oshCoreDir = "$includeDir/osh-core"
