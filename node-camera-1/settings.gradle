@@ -10,6 +10,8 @@ include 'sensorhub-storage-h2'
 project(':sensorhub-storage-h2').projectDir = "$includeDir/osh-addons/persistence/sensorhub-storage-h2" as File
 
 // cameras
+include 'sensorhub-service-video'
+project(':sensorhub-service-video').projectDir = "$includeDir/osh-addons/sensors/video/sensorhub-service-video" as File
 include 'sensorhub-driver-rtpcam'
 project(':sensorhub-driver-rtpcam').projectDir = "$includeDir/osh-addons/sensors/video/sensorhub-driver-rtpcam" as File
 include 'sensorhub-driver-videocam'

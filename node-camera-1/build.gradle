@@ -22,6 +22,7 @@ dependencies {
   compile 'org.sensorhub:sensorhub-storage-perst:' + oshCoreVersion
   compile 'org.sensorhub:sensorhub-webui-core:' + oshCoreVersion
   compile project(':sensorhub-storage-h2')
+  compile project(':sensorhub-service-video')
   compile project(':sensorhub-driver-axis')
   compile project(':sensorhub-driver-dahua')
 }

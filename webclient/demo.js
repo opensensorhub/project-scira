@@ -5,7 +5,8 @@
 // Config Wide Parameters
 let HOSTNAME = "localhost";
 let DEPLOYHOSTNAME = "scira.georobotix.io";
-let HOSTNAME_TEST = "192.168.1.189:8282";
+// let HOSTNAME_TEST = "192.168.1.189:8282";
+let HOSTNAME_TEST = "127.0.0.1:8181";
 let PORTNUM = 8181;
 let START_TIME = "now";
 // let END_TIME = "2100-01-01T20:18:05.451Z";

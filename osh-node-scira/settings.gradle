@@ -21,6 +21,10 @@ project(':sensorhub-storage-usgswater').projectDir = "$includeDir/osh-addons/sen
 include 'sensorhub-storage-ndbc'
 project(':sensorhub-storage-ndbc').projectDir = "$includeDir/osh-addons/sensors/hydro/sensorhub-storage-ndbc" as File
 
+//osh-weather
+// include 'sensorhub-driver-metar'
+// project(':sensorhub-driver-metar').projectDir = "$includeDir/osh-addons/sensors/weather/sensorhub-driver-metar" as File
+
 // include all folders with build.gradle as subprojects
 FileTree subprojects = fileTree(rootDir).include('*/build.gradle')
 subprojects.files.each { File f ->
