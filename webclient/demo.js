@@ -2158,8 +2158,7 @@ let Sensors = {
                     endTime: END_TIME,
                     replaySpeed: 1,
                     timeShift: 0,
-                    // syncMasterTime: SYNC,
-                    syncMasterTime: false,
+                    syncMasterTime: SYNC,
                     bufferingTime: 0,
                     timeOut: 4000,
                     connect: false
@@ -3682,7 +3681,6 @@ let Context = {
 
     },
     createCamContextMenu(parentEntity, entityIds, dataSources, videoType) {
-        console.log(dataSources);
         let menuItems = [];
         let chartMap = {
             video: {},
@@ -3726,6 +3724,7 @@ let Context = {
 
         function connectVideo() {
             console.debug('Show Video for:', parentEntity);
+            console.log(dataSources);
             dialogAndDSController('video', dataSources.video);
         }
 
@@ -3783,8 +3782,8 @@ let Context = {
             if (callerType === 'video') {
                 console.log(dataSources.video);
                 if (!chartMap.video.hasOwnProperty('dialog')) {
-                    // videoDialog = UI.createMultiDialog('android-video', [video], parentEntity.name + ' Video', true);
-                    videoDialog = new OSH.UI.MultiDialogView('android-video', {
+                    let videoView;
+                    videoDialog = new OSH.UI.MultiDialogView('camera-view', {
                         draggable: true,
                         css: "video-dialog",
                         name: parentEntity.name + ' Video',
@@ -3795,17 +3794,9 @@ let Context = {
                         connectionIds: [dataSources.video.getId()]
                     });
                     chartMap.video.dialog = videoDialog;
-                    let videoView;
-                    /*let videoView = new OSH.UI.MjpegView(videoDialog.popContentDiv.id, {
-                        dataSourceId: [dataSources.video.getId()],
-                        entityId: parentEntity.id,
-                        css: "video",
-                        cssSelected: "video-selected",
-                        width: 360,
-                        height: 300
-                    });*/
                     if (videoType === 'h264') {
                         console.log('Creating h264 view');
+
                         videoView = new OSH.UI.FFMPEGView(videoDialog.popContentDiv.id, {
                             dataSourceId: [dataSources.video.getId()],
                             css: "video",
@@ -3818,16 +3809,6 @@ let Context = {
                         });
                     } else if (videoType === 'mjpeg' || typeof videoType === "undefined") {
                         console.log('Creating mjpeg view');
-                        videoDialog = new OSH.UI.DialogView('android-video', {
-                            draggable: true,
-                            css: "video-dialog",
-                            name: parentEntity.name + ' Video',
-                            show: true,
-                            dockable: false,
-                            closeable: true,
-                            keepRatio: false,
-                            connectionIds: [dataSources.video.getId()]
-                        })
                         videoView = new OSH.UI.MjpegView(videoDialog.popContentDiv.id, {
                             dataSourceId: [dataSources.video.getId()],
                             entityId: parentEntity.id,
@@ -3847,6 +3828,7 @@ let Context = {
                         });
                     }
                     if (typeof (dataSources.sps) !== "undefined") {
+                        // Note: make sure to check the server's authentication settings if SPS isn't working
                         taskingView = new OSH.UI.PtzTaskingView(videoDialog.popContentDiv.id, {
                             dataSenderId: dataSources.sps.getId(),
                             ptIncrement: 1,
@@ -3857,8 +3839,10 @@ let Context = {
                         });
                     }
                     chartMap.video.view = videoView;
+
                 }
                 let dialogElem = document.getElementById(chartMap.video.dialog.id);
+                console.log(chartMap);
                 console.log(dialogElem);
                 dialogElem.style.visibility = 'visible';
                 dialogElem.style.display = 'block';

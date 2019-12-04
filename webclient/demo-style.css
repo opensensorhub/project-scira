@@ -93,7 +93,7 @@ body {
 .pop-inner {
     background-color: #FFFFFF;
     padding: 5px;
-    /*height: 100%;*/
+    max-height: 95%;
 }
 
 .video-dialog-43 {
@@ -377,4 +377,16 @@ img[id*="dataview"] {
 
 .pop-connect{
     display: none;
+}
+
+canvas{
+    max-width: 100%;
+}
+
+.resizable{
+    max-height: 90vh;
+}
+
+.video{
+    max-height: 80%;
 }
