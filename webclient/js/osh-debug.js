@@ -3069,7 +3069,13 @@ OSH.DataSender.PtzTasking = OSH.DataSender.DataSink.extend({
         var cmdData = "";
 
         if (values.rtilt != null) {
-            cmdData += "rtilt," + values.rtilt + " ";
+            console.log(values.rtilt);
+            if(this.properties.hasOwnProperty("reverseTilt") && this.properties.reverseTilt){       // TODO: add this into osh-js toolkit
+                console.log("inverting Tilt Command");
+                cmdData += "rtilt," + (-1 * values.rtilt) + " ";
+            }else {
+                cmdData += "rtilt," + values.rtilt + " ";
+            }
         }
 
         if (values.rpan != null) {

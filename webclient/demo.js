@@ -185,7 +185,8 @@ function init() {
     // Misc Cameras
     Sensors.addCamSource('Dahua-Mini', 'Dahua Mini PTZ', 'urn:dahua:cam:1G0215CGAK00046', {
         spsID: 'urn:dahua:cam:1G0215CGAK00046',
-        videoType: 'h264'
+        videoType: 'h264',
+        reverseTilt: true
     });
     Sensors.addCamSource('Axis-Cam', 'Axis PTZ', 'urn:axis:cam:00408CA0FF1C', {
         spsID: 'urn:axis:cam:00408CA0FF1C',
@@ -2173,7 +2174,8 @@ let Sensors = {
                 service: "SPS",
                 version: "2.0",
                 endpointUrl: spsEP,
-                offeringID: options.spsID
+                offeringID: options.spsID,
+                reverseTilt: options.reverseTilt
             });
         }
 
