@@ -1,0 +1,92 @@
+[
+  {
+    "objClass": "org.sensorhub.impl.service.HttpServerConfig",
+    "id": "5cb05c9c-9e08-4fa1-8731-ffaa5846bdc1",
+    "name": "HTTP Server",
+    "moduleClass": "org.sensorhub.impl.service.HttpServer",
+    "httpPort": 8181,
+    "servletsRootUrl": "/sensorhub",
+    "staticDocRootUrl": "web"
+  },
+  {
+    "objClass": "org.sensorhub.ui.AdminUIConfig",
+    "id": "5cb05c9c-9123-4fa1-8731-ffaa51489678",
+    "moduleClass": "org.sensorhub.ui.AdminUIModule",
+    "enabled": true
+  },
+  {
+    "objClass": "org.sensorhub.impl.sensor.intellisense.IntellisenseConfig",
+    "id": "d136b6ea-3950-4691-bf56-c84ec7d89ahh",
+    "name": "Intellisense Flood Sensor Network",
+    "moduleClass": "org.sensorhub.impl.sensor.intellisense.IntellisenseSensor",
+    "username" : "xxxxx",
+    "password" : "xxxxx", 
+    "enabled": true,
+    "autoStart": true
+  },
+  {
+    "objClass": "org.sensorhub.impl.persistence.StreamStorageConfig",
+    "id": "5cb05c9c-9e08-4fa1-8731-ff4ff948acdc",
+    "name": "Intellisense Flood Sernsor Data Storage",
+    "moduleClass": "org.sensorhub.impl.persistence.GenericStreamStorage",
+    "enabled": true,
+    "dataSourceID": "d136b6ea-3950-4691-bf56-c84ec7d89ahh",
+    "storageConfig":    
+    {
+      "objClass": "org.sensorhub.impl.persistence.perst.BasicStorageConfig",
+      "moduleClass": "org.sensorhub.impl.persistence.perst.MultiEntityStorageImpl",
+      "memoryCacheSize": 1024,
+      "storagePath": "flood_obs.dat"
+    }
+  }, 
+  {
+    "objClass": "org.sensorhub.impl.service.sos.SOSServiceConfig",
+    "id": "5cb05c9c-9e08-4fa1-8731-ff41e246bdc1",
+    "name": "SOS Service",
+    "moduleClass": "org.sensorhub.impl.service.sos.SOSService",
+    "enabled": true,
+    "endPoint": "/sos",
+    "enableHttpGET": true,
+    "enableHttpPOST": true,
+    "enableSOAP": true,
+    "dataProviders" : [
+       {
+           "objClass": "org.sensorhub.impl.service.sos.SensorDataProviderConfig",
+           "enabled": true,
+           "name": "Live Flood Sensors",
+           "description": "Live stream from Intellisense Flood Sensor Network",
+           "sensorID": "d136b6ea-3950-4691-bf56-c84ec7d89ahh",
+           "offeringID": "urn:sos:sensor:intellisense",
+           "liveDataTimeout": 3600.0,
+           "maxFois": 10
+       },
+       {
+           "objClass": "org.sensorhub.impl.service.sos.SensorDataProviderConfig",
+           "enabled": true,
+           "name": "Flood Sensors",
+           "description": "Intellisense Flood Sensor Data",
+           "sensorID": "d136b6ea-3950-4691-bf56-c84ec7d89ahh",
+           "storageID": "5cb05c9c-9e08-4fa1-8731-ff4ff948acdc",
+           "offeringID": "urn:sos:sensor:intellisense",
+           "liveDataTimeout": 3600.0,
+           "maxFois": 10
+       }
+    ],
+    "ogcCapabilitiesInfo": {
+      "title": "Test SOS Service",
+      "description": "An SOS service automatically deployed by SensorHub",
+      "keywords": ["SensorHub", "Weather", "Intellisense", "Flood"],
+      "fees": "NONE",
+      "accessConstraints": "NONE",
+      "serviceProvider": {
+        "individualName": "Tony Cook",
+        "organizationName": "Botts Inc.",
+        "positionName": "Programmer",
+        "voiceNumber": "512-734-5758",
+        "postalCode": "78752",
+        "country": "USA",
+        "email": "tony.cook@opensensorhub.org"
+      }
+    }
+  }
+]
