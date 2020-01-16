@@ -110,10 +110,10 @@ function init() {
     cesiumView.viewer._selectedEntityChanged.addEventListener(CesiumSelectionChgListener);
     // console.log(cesiumView.viewer);
 
-    var lat = 34.666020;
-    var lon = -86.780215;
-    var halfsize = 0.00026;
-    var aratio = 1.2;
+    var lat = 38.631400;
+    var lon = -90.19300;
+    var halfsize = 0.00035;
+    var aratio = 1.25;
     var east = lon + halfsize * aratio;
     var west = lon - halfsize * aratio;
     var north = lat + halfsize;
@@ -121,11 +121,11 @@ function init() {
     var rectangle = Cesium.Rectangle.fromDegrees(west, south, east, north);
 
     var vbc = cesiumView.viewer.entities.add({
-        name: "Open Sensor Hub",
+        name: "TREX Building",
         rectangle: {
             coordinates: rectangle,
             material: new Cesium.ImageMaterialProperty({
-                image: './models/oshHQ-rot.png',
+                image: './models/trex4.png',
                 transparent: true
             })
         }
