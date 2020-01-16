@@ -10,7 +10,7 @@ let HOSTNAME_TEST = "127.0.0.1:8181";
 let PORTNUM = 8181;
 let START_TIME = "now";
 // let END_TIME = "2100-01-01T20:18:05.451Z";
-let END_TIME = '2020-05-01';
+let END_TIME = '2021-05-01';
 let SYNC = false;
 let TIMEOUT = 4000;
 let REPLAY_FACTOR = 999999;
@@ -1202,7 +1202,7 @@ let Sensors = {
             observedProperty: 'http://sensorml.com/ont/swe/property/Location',
             startTime: 'now',
             // endTime: new Date(now).toISOString(),
-            endTime: '2020-01-01',
+            endTime: '2021-01-01',
             replaySpeed: 1,
             syncMasterTime: SYNC,
             bufferingTime: 100,
@@ -1217,7 +1217,7 @@ let Sensors = {
             offeringID: offeringID,
             observedProperty: 'http://sensorml.com/ont/swe/property/OrientationQuaternion',
             startTime: 'now',
-            endTime: '2020-01-01',
+            endTime: '2021-01-01',
             replaySpeed: 1,
             syncMasterTime: SYNC,
             bufferingTime: 100,
@@ -1232,7 +1232,7 @@ let Sensors = {
             offeringID: offeringID,
             observedProperty: "http://sensorml.com/ont/swe/property/VideoFrame",
             startTime: 'now',
-            endTime: '2020-01-01',
+            endTime: '2021-01-01',
             replaySpeed: "1",
             timeShift: 0,
             syncMasterTime: SYNC,
