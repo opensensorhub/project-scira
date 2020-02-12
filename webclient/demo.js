@@ -195,6 +195,9 @@ function init() {
     Sensors.addCamSource('GeoCam-0102', 'GeoCam 0102', 'urn:osh:system:geocam:0102-sos', {
         videoType: 'mjpeg'
     });
+    Sensors.addCamSource('TVS-ROP Cam 1', 'TVS-ROP 1', 'urn:tvs-rop:1', {
+        videoType: 'h264'
+    });
 
     // UAV
     // Sensors.addUAV('Solo-1', 'Solo Drone 1', 'urn:osh:sensor:mavlink:solo:S115A58000000-sos',
